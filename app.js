@@ -83,11 +83,11 @@ if (DATABASE_CONFIG.SUPABASE_URL && DATABASE_CONFIG.SUPABASE_ANON_KEY) {
 
 // Mánagers Simulados (CPU) que competirán con el usuario
 const CPU_PLAYERS = [
-    { username: "Bilardo Master", teamName: "Narigón F.C.", avatar: 0, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
-    { username: "Basile Coco", teamName: "La Voz F.C.", avatar: 2, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
-    { username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: 3, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
-    { username: "El Tronco", teamName: "Troncos Unidos", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
-    { username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
+    { email: "bilardo@cyber96.com", username: "Bilardo Master", teamName: "Narigón F.C.", avatar: 0, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
+    { email: "basile@coco90.com", username: "Basile Coco", teamName: "La Voz F.C.", avatar: 2, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
+    { email: "caruso@humo.com", username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: 3, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
+    { email: "tronco@futbol.com", username: "El Tronco", teamName: "Troncos Unidos", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
+    { email: "gold@predictor.com", username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
 ];
 
 // Estado global de la aplicación
@@ -464,10 +464,10 @@ function loadDatabase() {
         document.getElementById('api-token-input').value = storedApiToken;
     }
     
-    // 5. Sesión activa (Cambio de email a username)
-    const activeSessionUsername = localStorage.getItem('predictor_lulo_session');
-    if (activeSessionUsername) {
-        state.currentUser = state.users.find(u => u.username === activeSessionUsername && !u.isCPU);
+    // 5. Sesión activa
+    const activeSessionEmail = localStorage.getItem('predictor_lulo_session');
+    if (activeSessionEmail) {
+        state.currentUser = state.users.find(u => u.email === activeSessionEmail && !u.isCPU);
         
         // Inicializar estructura de predicciones avanzadas si no existen
         if (state.currentUser) {
@@ -501,7 +501,7 @@ function saveDatabaseLocally() {
     localStorage.setItem('predictor_lulo_api_token', state.apiToken);
     
     if (state.currentUser) {
-        localStorage.setItem('predictor_lulo_session', state.currentUser.username);
+        localStorage.setItem('predictor_lulo_session', state.currentUser.email);
     } else {
         localStorage.removeItem('predictor_lulo_session');
     }
@@ -513,6 +513,7 @@ function saveDatabase() {
     // Guardar cambios de predicciones en la nube asincrónicamente si Supabase está activo
     if (supabase && state.currentUser) {
         supabase.from('users').update({
+            username: state.currentUser.username,
             predictions: state.currentUser.predictions,
             bracket_predictions: state.currentUser.bracketPredictions,
             special_predictions: state.currentUser.specialPredictions,
@@ -522,7 +523,7 @@ function saveDatabase() {
             team_name: state.currentUser.teamName,
             avatar: String(state.currentUser.avatar),
             avatar_type: state.currentUser.avatarType
-        }).eq('username', state.currentUser.username)
+        }).eq('email', state.currentUser.email)
         .then(({ error }) => {
             if (error) console.error("Error al guardar predicciones del usuario en Supabase:", error);
             else console.log("Datos de usuario guardados en la nube asincrónicamente.");
@@ -567,7 +568,8 @@ async function syncWithSupabase() {
             // Cargar usuarios de la nube
             cloudUsers.forEach(cu => {
                 const userObj = {
-                    username: cu.username,
+                    email: cu.email,
+                    username: cu.username || "",
                     password: cu.password,
                     teamName: cu.team_name || "",
                     avatar: isNaN(Number(cu.avatar)) ? cu.avatar : Number(cu.avatar),
@@ -586,7 +588,7 @@ async function syncWithSupabase() {
             
             // Si falta alguna CPU por defecto, la agregamos
             CPU_PLAYERS.forEach(cpu => {
-                if (!newUsersList.some(u => u.username === cpu.username)) {
+                if (!newUsersList.some(u => u.email === cpu.email)) {
                     newUsersList.push(JSON.parse(JSON.stringify(cpu)));
                 }
             });
@@ -614,9 +616,9 @@ async function syncWithSupabase() {
         calculateAllPoints();
         
         // Vincular sesión actual
-        const activeSessionUsername = localStorage.getItem('predictor_lulo_session');
-        if (activeSessionUsername) {
-            state.currentUser = state.users.find(u => u.username === activeSessionUsername && !u.isCPU);
+        const activeSessionEmail = localStorage.getItem('predictor_lulo_session');
+        if (activeSessionEmail) {
+            state.currentUser = state.users.find(u => u.email === activeSessionEmail && !u.isCPU);
             if (state.currentUser) {
                 if (!state.currentUser.bracketPredictions) state.currentUser.bracketPredictions = {};
                 if (!state.currentUser.specialPredictions) {
@@ -1429,17 +1431,17 @@ function setupNavigation() {
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const usernameInput = document.getElementById('auth-username').value.trim();
+        const inputVal = document.getElementById('auth-username').value.trim();
         const password = document.getElementById('auth-password').value;
         
-        if (!usernameInput || !password) return;
-        
-        // Búsqueda insensible a mayúsculas
-        let userObj = state.users.find(u => u.username && u.username.toLowerCase() === usernameInput.toLowerCase() && !u.isCPU);
+        if (!inputVal || !password) return;
         
         if (state.authMode === "login") {
+            // LOGIN: El usuario ingresa su Nombre de Usuario
+            let userObj = state.users.find(u => u.username && u.username.toLowerCase() === inputVal.toLowerCase() && !u.isCPU);
+            
             if (!userObj) {
-                showToast("Cuenta no encontrada. Crea una primero.");
+                showToast("Mánager no encontrado. Regístrate primero.");
                 Sound.playError();
                 return;
             }
@@ -1464,9 +1466,12 @@ function setupNavigation() {
             }
             
         } else {
-            // REGISTRO
+            // REGISTRO: El usuario ingresa su Correo Electrónico
+            const emailInput = inputVal.toLowerCase();
+            let userObj = state.users.find(u => u.email && u.email.toLowerCase() === emailInput && !u.isCPU);
+            
             if (userObj) {
-                showToast("El usuario ya está registrado");
+                showToast("El correo ya está registrado");
                 Sound.playError();
                 return;
             }
@@ -1475,7 +1480,8 @@ function setupNavigation() {
             const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
             
             userObj = {
-                username: usernameInput,
+                email: emailInput,
+                username: "", // Se elige en onboarding
                 password: password,
                 teamName: "",
                 avatar: 0,
@@ -1496,6 +1502,7 @@ function setupNavigation() {
             if (supabase) {
                 try {
                     const { error } = await supabase.from('users').insert({
+                        email: userObj.email,
                         username: userObj.username,
                         password: userObj.password,
                         team_name: userObj.teamName,
@@ -1528,13 +1535,15 @@ function setupNavigation() {
         Sound.playClick();
         showToast("Conectando con Google API...");
         setTimeout(async () => {
+            const googleEmail = "manager.google@gmail.com";
             const googleUser = "GoogleManager";
-            let userObj = state.users.find(u => u.username && u.username.toLowerCase() === googleUser.toLowerCase() && !u.isCPU);
+            let userObj = state.users.find(u => u.email && u.email.toLowerCase() === googleEmail && !u.isCPU);
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
             
             if (!userObj) {
                 userObj = {
+                    email: googleEmail,
                     username: googleUser,
                     password: "google_account_token_96",
                     teamName: "",
@@ -1553,6 +1562,7 @@ function setupNavigation() {
                 if (supabase) {
                     try {
                         await supabase.from('users').insert({
+                            email: userObj.email,
                             username: userObj.username,
                             password: userObj.password,
                             team_name: userObj.teamName,
@@ -1610,12 +1620,20 @@ function setupNavigation() {
     // Envío del Formulario de Onboarding
     document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('onboard-username').value.trim();
+        const chosenUsername = document.getElementById('onboard-username').value.trim();
         const teamName = document.getElementById('onboard-team-name').value.trim();
         
-        if (!username || !teamName) return;
+        if (!chosenUsername || !teamName) return;
         
-        state.currentUser.username = username;
+        // Validar que el nombre de usuario no esté tomado por otro usuario
+        const usernameTaken = state.users.some(u => u.username && u.username.toLowerCase() === chosenUsername.toLowerCase() && u.email !== state.currentUser.email);
+        if (usernameTaken) {
+            showToast("Mánager ya registrado. Elige otro nombre.");
+            Sound.playError();
+            return;
+        }
+        
+        state.currentUser.username = chosenUsername;
         state.currentUser.teamName = teamName;
         
         if (state.avatarSource === 'custom' && state.tempCustomAvatarBase64) {
@@ -1644,7 +1662,7 @@ function setupNavigation() {
                     points: state.currentUser.points,
                     exact_matches: state.currentUser.exactMatches,
                     outcome_matches: state.currentUser.outcomeMatches
-                }).eq('username', state.currentUser.username);
+                }).eq('email', state.currentUser.email);
                 console.log("Ficha del mánager guardada en Supabase.");
             } catch (e) {
                 console.error("Fallo al actualizar ficha de mánager en Supabase:", e);
@@ -1880,8 +1898,9 @@ function transitionToOnboarding() {
     document.getElementById('onboarding-screen').classList.remove('inactive-screen');
     document.getElementById('onboarding-screen').classList.add('active-screen');
     
-    document.getElementById('onboard-username').value = state.currentUser ? state.currentUser.username : '';
-    document.getElementById('onboard-username').readOnly = true; // Hacerlo solo lectura para consistencia con el login
+    const uName = (state.currentUser && state.currentUser.username) ? state.currentUser.username : '';
+    document.getElementById('onboard-username').value = uName;
+    document.getElementById('onboard-username').readOnly = uName ? true : false; 
     document.getElementById('onboard-team-name').value = '';
     document.getElementById('btn-source-predefined').click();
 }
