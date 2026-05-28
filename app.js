@@ -2043,7 +2043,6 @@ function setupNavigation() {
                 
                 updateManagerUIStats();
                 showToast("Configuración Guardada");
-                Sound.playDisk();
             } else {
                 showToast("Completa los campos obligatorios");
                 Sound.playError();
