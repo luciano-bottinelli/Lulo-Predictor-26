@@ -9,34 +9,39 @@ const DEFAULT_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/20
 const CONFIG = {
     // Definición de las 48 selecciones oficiales
     COUNTRIES: {
-        ARG: { name: "Argentina", colors: { primary: "#74acdf", secondary: "#ffffff" } },
-        BRA: { name: "Brasil", colors: { primary: "#009c3b", secondary: "#ffdf00" } },
-        VEN: { name: "Venezuela", colors: { primary: "#800000", secondary: "#ffcc00" } },
-        FRA: { name: "Francia", colors: { primary: "#002395", secondary: "#ffffff" } },
-        GER: { name: "Alemania", colors: { primary: "#000000", secondary: "#ffffff" } },
-        ESP: { name: "España", colors: { primary: "#c60b1e", secondary: "#ffc400" } },
-        URU: { name: "Uruguay", colors: { primary: "#0081c8", secondary: "#ffffff" } },
-        ENG: { name: "Inglaterra", colors: { primary: "#ffffff", secondary: "#cf081f" } },
-        MEX: { name: "México", colors: { primary: "#006847", secondary: "#ffffff" } },
-        USA: { name: "EE.UU.", colors: { primary: "#002868", secondary: "#ffffff" } },
-        JPN: { name: "Japón", colors: { primary: "#000555", secondary: "#ffffff" } },
-        CAN: { name: "Canadá", colors: { primary: "#ff0000", secondary: "#ffffff" } },
-        COL: { name: "Colombia", colors: { primary: "#fcd116", secondary: "#003893" } },
-        SEN: { name: "Senegal", colors: { primary: "#ffffff", secondary: "#00853f" } },
-        BEL: { name: "Bélgica", colors: { primary: "#e30613", secondary: "#000000" } },
-        KOR: { name: "Corea Sur", colors: { primary: "#cd2e3a", secondary: "#ffffff" } },
-        CRO: { name: "Croacia", colors: { primary: "#ff0000", secondary: "#ffffff" } },
-        MAR: { name: "Marruecos", colors: { primary: "#c1272d", secondary: "#006233" } },
-        SWE: { name: "Suecia", colors: { primary: "#fecc00", secondary: "#006aa7" } },
-        PAR: { name: "Paraguay", colors: { primary: "#d52b1e", secondary: "#ffffff" } },
-        TUN: { name: "Túnez", colors: { primary: "#ffffff", secondary: "#e2011a" } },
-        NED: { name: "P. Bajos", colors: { primary: "#ff4f00", secondary: "#ffffff" } },
-        POR: { name: "Portugal", colors: { primary: "#ff0000", secondary: "#006600" } },
-        EGY: { name: "Egipto", colors: { primary: "#ce1126", secondary: "#ffffff" } },
-        ECU: { name: "Ecuador", colors: { primary: "#ffdd00", secondary: "#034ea2" } },
-        SUI: { name: "Suiza", colors: { primary: "#da291c", secondary: "#ffffff" } },
-        GHA: { name: "Ghana", colors: { primary: "#ffffff", secondary: "#000000" } },
-        KSA: { name: "Arabia S.", colors: { primary: "#006c35", secondary: "#ffffff" } },
+        ARG: { name: "Argentina", colors: { bg: "#74acdf", stripe: "#ffffff", sun: "#f9d149" } },
+        VEN: { name: "Venezuela", colors: { yellow: "#fcd116", blue: "#003893", red: "#cf142b" } },
+        BRA: { name: "Brasil", colors: { green: "#009c3b", yellow: "#ffe000", blue: "#002776" } },
+        FRA: { name: "Francia", colors: { blue: "#002395", white: "#ffffff", red: "#ed2939" } },
+        GER: { name: "Alemania", colors: { black: "#000000", red: "#dd0000", gold: "#ffcf00" } },
+        ESP: { name: "España", colors: { red: "#c60b1e", gold: "#ffc400" } },
+        URU: { name: "Uruguay", colors: { blue: "#0081c8", white: "#ffffff", sun: "#f9d149" } },
+        ENG: { name: "Inglaterra", colors: { white: "#ffffff", red: "#cf081f" } },
+        MEX: { name: "México", colors: { green: "#006847", white: "#ffffff", red: "#c8102e" } },
+        USA: { name: "EE.UU.", colors: { blue: "#002868", red: "#bf0a30", white: "#ffffff" } },
+        ITA: { name: "Italia", colors: { green: "#009246", white: "#ffffff", red: "#ce2b37" } },
+        JPN: { name: "Japón", colors: { white: "#ffffff", red: "#bc002d" } },
+        CAN: { name: "Canadá", colors: { red: "#ff0000", white: "#ffffff" } },
+        COL: { name: "Colombia", colors: { yellow: "#fcd116", blue: "#003893", red: "#ce1126" } },
+        SEN: { name: "Senegal", colors: { green: "#00853f", yellow: "#fdef42", red: "#e31b23" } },
+        BEL: { name: "Bélgica", colors: { black: "#000000", red: "#fdda24", gold: "#ef3340" } },
+        KOR: { name: "Corea Sur", colors: { white: "#ffffff", red: "#cd2e3a", blue: "#0047a0" } },
+        CRO: { name: "Croacia", colors: { red: "#ff0000", white: "#ffffff" } },
+        MAR: { name: "Marruecos", colors: { red: "#c1272d", green: "#006233" } },
+        SWE: { name: "Suecia", colors: { blue: "#006aa7", yellow: "#fecc00" } },
+        CMR: { name: "Camerún", colors: { green: "#007a5e", red: "#ce1126", yellow: "#fcd116" } },
+        PAR: { name: "Paraguay", colors: { red: "#d52b1e", white: "#ffffff", blue: "#0038a8" } },
+        TUN: { name: "Túnez", colors: { red: "#e2011a", white: "#ffffff" } },
+        NED: { name: "P. Bajos", colors: { orange: "#ff4f00", white: "#ffffff" } },
+        POR: { name: "Portugal", colors: { green: "#006600", red: "#ff0000" } },
+        EGY: { name: "Egipto", colors: { red: "#c09300", black: "#000000" } },
+        ECU: { name: "Ecuador", colors: { yellow: "#ffdd00", blue: "#034ea2", red: "#da291c" } },
+        SUI: { name: "Suiza", colors: { red: "#da291c", white: "#ffffff" } },
+        POL: { name: "Polonia", colors: { white: "#ffffff", red: "#eb3323" } },
+        NGA: { name: "Nigeria", colors: { green: "#008751", white: "#ffffff" } },
+        GHA: { name: "Ghana", colors: { red: "#e2011a", yellow: "#fdef42", green: "#00853f" } },
+        KSA: { name: "Arabia S.", colors: { green: "#006c35", white: "#ffffff" } },
+        // Nuevas selecciones con colores primarios y secundarios para bandera genérica
         RSA: { name: "Sudáfrica", colors: { primary: "#007749", secondary: "#ffb81c" } },
         COD: { name: "R.D. Congo", colors: { primary: "#007fff", secondary: "#ce1021" } },
         BIH: { name: "Bosnia", colors: { primary: "#002395", secondary: "#ffffff" } },
@@ -403,7 +408,11 @@ function getFlagSVGContent(code, props) {
             innerContent = `<rect width="40" height="100" fill="${props.colors.green}"/><rect x="40" width="60" height="100" fill="${props.colors.red}"/><circle cx="40" cy="50" r="10" fill="#ffff00" stroke="#000" stroke-width="1"/>`;
             break;
         default:
-            innerContent = `<rect width="100" height="100" fill="#777"/>`;
+            if (props.colors && props.colors.primary && props.colors.secondary) {
+                innerContent = `<rect width="100" height="50" fill="${props.colors.primary}"/><rect y="50" width="100" height="50" fill="${props.colors.secondary}"/>`;
+            } else {
+                innerContent = `<rect width="100" height="100" fill="#777"/>`;
+            }
     }
     return `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="none">
@@ -1933,7 +1942,7 @@ function updateManagerUIStats() {
     // 2. Team Name
     const teamEl = document.getElementById('manager-profile-team');
     if (teamEl) {
-        teamEl.innerText = state.currentUser.teamName ? state.currentUser.teamName.toUpperCase() : "C.A. LULO";
+        teamEl.innerText = state.currentUser.teamName ? state.currentUser.teamName.toUpperCase() : `C.A. ${state.currentUser.username.toUpperCase()}`;
     }
     
     // 3. Manager Name
