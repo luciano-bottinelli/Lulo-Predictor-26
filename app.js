@@ -1218,7 +1218,7 @@ function renderBracketRound() {
                 <div class="match-team" style="cursor:pointer;" class="btn-adv-toggle" data-match-id="${match.id}" data-team="${match.home}">
                     ${createCircularFlagHTML(match.home)}
                     <span class="team-name ${isWinnerHome ? 'text-yellow font-bold' : ''}" style="font-size:14px; margin-top:2px;">${CONFIG.COUNTRIES[match.home]?.name || match.home}</span>
-                    <span style="font-size:8px; color: #888;">${isWinnerHome ? '(GANADOR)' : 'Haga clic para ganar'}</span>
+                    <span style="font-size: 10px; color: #888;">${isWinnerHome ? '(GANADOR)' : 'Haga clic para ganar'}</span>
                 </div>
                 
                 <!-- Inputs de Marcador -->
@@ -1240,7 +1240,7 @@ function renderBracketRound() {
                 <div class="match-team" style="cursor:pointer;" class="btn-adv-toggle" data-match-id="${match.id}" data-team="${match.away}">
                     ${createCircularFlagHTML(match.away)}
                     <span class="team-name ${isWinnerAway ? 'text-yellow font-bold' : ''}" style="font-size:14px; margin-top:2px;">${CONFIG.COUNTRIES[match.away]?.name || match.away}</span>
-                    <span style="font-size:8px; color: #888;">${isWinnerAway ? '(GANADOR)' : 'Haga clic para ganar'}</span>
+                    <span style="font-size: 10px; color: #888;">${isWinnerAway ? '(GANADOR)' : 'Haga clic para ganar'}</span>
                 </div>
             </div>
         `;
@@ -2104,7 +2104,7 @@ function renderActiveClanLeaderboard() {
                 <div class="row-manager-info">
                     <img src="${avatarImg}" alt="${user.username}" class="row-avatar">
                     <div>
-                        <div style="font-family: var(--font-pixel-heading); font-size: 7px; color: var(--win-blue);">${user.teamName.toUpperCase()}</div>
+                        <div style="font-family: var(--font-pixel-heading); font-size: 9px; color: var(--win-blue);">${user.teamName.toUpperCase()}</div>
                         <div style="font-size: 11px; color: #333;">Mánager: <span style="color: #000; font-weight: bold;">${user.username}</span> ${user.isCPU ? '<span style="color: #666; font-size:9px;">(CPU)</span>' : ''}</div>
                     </div>
                 </div>
@@ -2269,7 +2269,7 @@ function renderStandings() {
                 <div class="row-manager-info">
                     <img src="${avatarImg}" alt="${user.username}" class="row-avatar">
                     <div>
-                        <div style="font-family: var(--font-pixel-heading); font-size: 7px; color: var(--win-blue);">${user.teamName.toUpperCase()}</div>
+                        <div style="font-family: var(--font-pixel-heading); font-size: 9px; color: var(--win-blue);">${user.teamName.toUpperCase()}</div>
                         <div style="font-size: 11px; color: #333;">Mánager: <span style="color: #000; font-weight: bold;">${user.username}</span> ${user.isCPU ? '<span style="color: #666; font-size:9px;">(CPU)</span>' : ''}</div>
                     </div>
                 </div>
@@ -2298,7 +2298,7 @@ function renderMatches() {
     });
     
     if (filteredMatches.length === 0) {
-        grid.innerHTML = `<div class="retro-panel text-center" style="grid-column: 1/-1;"><p style="font-family: var(--font-pixel-heading); font-size: 8px; padding: 24px;">NO HAY PARTIDOS EN ESTA JORNADA</p></div>`;
+        grid.innerHTML = `<div class="retro-panel text-center" style="grid-column: 1/-1;"><p style="font-family: var(--font-pixel-heading); font-size: 10px; padding: 24px;">NO HAY PARTIDOS EN ESTA JORNADA</p></div>`;
         return;
     }
     
@@ -2441,7 +2441,7 @@ function renderMatches() {
             </div>
             <table style="width:100%; border-collapse: collapse;">
                 <thead>
-                    <tr style="border-bottom: 2px solid #fff; font-family: var(--font-pixel-heading); font-size: 8px;">
+                    <tr style="border-bottom: 2px solid #fff; font-family: var(--font-pixel-heading); font-size: 10px;">
                         <th style="text-align:left; padding:4px;">POS</th>
                         <th style="text-align:left; padding:4px;">EQUIPO</th>
                         <th style="text-align:center; padding:4px;">PTS</th>
@@ -2526,3 +2526,4 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
