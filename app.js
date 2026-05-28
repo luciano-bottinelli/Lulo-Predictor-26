@@ -890,11 +890,11 @@ function calculateAllPoints() {
 
 function getPlayoffIds() {
     const ids = [];
-    for (let i = 1; i <= 16; i++) ids.push(`R32_${i}`);
-    for (let i = 1; i <= 8; i++) ids.push(`R16_${i}`);
-    for (let i = 1; i <= 4; i++) ids.push(`QF_${i}`);
-    for (let i = 1; i <= 2; i++) ids.push(`SF_${i}`);
-    ids.push('FINAL');
+    for (let i = 73; i <= 88; i++) ids.push(`M${i}`);
+    for (let i = 89; i <= 96; i++) ids.push(`M${i}`);
+    for (let i = 97; i <= 100; i++) ids.push(`M${i}`);
+    for (let i = 101; i <= 102; i++) ids.push(`M${i}`);
+    ids.push('M104');
     return ids;
 }
 
@@ -979,21 +979,28 @@ function compileUserPlayoffBracket() {
     const groupSecond = (idx) => seconds[idx]?.team || "TBD";
     const bestThird = (idx) => bestThirds[idx]?.team || "TBD";
     
-    // 8 Ganadores (A-H) vs 8 Mejores Terceros
-    for (let i = 0; i < 8; i++) {
-        pairings.push(createPairing(`R32_${i+1}`, groupWinner(i), bestThird(i)));
-    }
-    
-    // 4 Ganadores (I-L) vs 4 Segundos (A-D)
-    for (let i = 0; i < 4; i++) {
-        pairings.push(createPairing(`R32_${i+9}`, groupWinner(i+8), groupSecond(i)));
-    }
-    
-    // 4 Cruces de Segundos (E vs F, G vs H, I vs J, K vs L)
-    pairings.push(createPairing(`R32_13`, groupSecond(4), groupSecond(5)));
-    pairings.push(createPairing(`R32_14`, groupSecond(6), groupSecond(7)));
-    pairings.push(createPairing(`R32_15`, groupSecond(8), groupSecond(9)));
-    pairings.push(createPairing(`R32_16`, groupSecond(10), groupSecond(11)));
+    // Asignación de 8 mejores terceros a los 8 partidos que requieren uno
+    const thirdAssignments = {};
+    const thirdMatches = [74, 77, 79, 80, 81, 82, 85, 87];
+    for (let i = 0; i < 8; i++) thirdAssignments[thirdMatches[i]] = bestThirds[i]?.team || "TBD";
+    const getThird = (mId) => thirdAssignments[mId] || "TBD";
+
+    pairings.push(createPairing(`M73`, groupSecond(0), groupSecond(1)));
+    pairings.push(createPairing(`M74`, groupWinner(4), getThird(74)));
+    pairings.push(createPairing(`M75`, groupWinner(5), groupSecond(2)));
+    pairings.push(createPairing(`M76`, groupWinner(2), groupSecond(5))); // 1C vs 2F
+    pairings.push(createPairing(`M77`, groupWinner(8), getThird(77)));
+    pairings.push(createPairing(`M78`, groupSecond(4), groupSecond(8)));
+    pairings.push(createPairing(`M79`, groupWinner(0), getThird(79)));
+    pairings.push(createPairing(`M80`, groupWinner(11), getThird(80)));
+    pairings.push(createPairing(`M81`, groupWinner(3), getThird(81)));
+    pairings.push(createPairing(`M82`, groupWinner(6), getThird(82)));
+    pairings.push(createPairing(`M83`, groupSecond(10), groupSecond(11)));
+    pairings.push(createPairing(`M84`, groupWinner(7), groupSecond(9)));
+    pairings.push(createPairing(`M85`, groupWinner(1), getThird(85)));
+    pairings.push(createPairing(`M86`, groupWinner(9), groupSecond(7)));
+    pairings.push(createPairing(`M87`, groupWinner(10), getThird(87)));
+    pairings.push(createPairing(`M88`, groupSecond(3), groupSecond(6)));
     
     return pairings;
 }
@@ -1008,68 +1015,41 @@ function getKnockoutRoundMatches(r32Pairings) {
         return pred ? pred.winner : defaultTeam;
     };
     
+    const createKnockoutMatch = (id, tHome, tAway) => ({
+        id,
+        home: tHome,
+        away: tAway,
+        homeScore: state.currentUser.bracketPredictions[id]?.homeScore ?? 0,
+        awayScore: state.currentUser.bracketPredictions[id]?.awayScore ?? 0,
+        winner: state.currentUser.bracketPredictions[id]?.winner ?? tHome
+    });
+    
     // 1. Ronda de 16 (8avos) - 8 partidos
     const r16 = [];
-    for (let i = 0; i < 8; i++) {
-        const mId = `R16_${i+1}`;
-        const tHome = getWinnerOf(`R32_${(i*2)+1}`, r32Pairings[(i*2)].home);
-        const tAway = getWinnerOf(`R32_${(i*2)+2}`, r32Pairings[(i*2)+1].home);
-        
-        r16.push({
-            id: mId,
-            home: tHome,
-            away: tAway,
-            homeScore: state.currentUser.bracketPredictions[mId]?.homeScore ?? 0,
-            awayScore: state.currentUser.bracketPredictions[mId]?.awayScore ?? 0,
-            winner: state.currentUser.bracketPredictions[mId]?.winner ?? tHome
-        });
-    }
-    
+    r16.push(createKnockoutMatch(`M89`, getWinnerOf(`M74`, r32Pairings.find(m => m.id === `M74`)?.home), getWinnerOf(`M77`, r32Pairings.find(m => m.id === `M77`)?.home)));
+    r16.push(createKnockoutMatch(`M90`, getWinnerOf(`M73`, r32Pairings.find(m => m.id === `M73`)?.home), getWinnerOf(`M75`, r32Pairings.find(m => m.id === `M75`)?.home)));
+    r16.push(createKnockoutMatch(`M91`, getWinnerOf(`M76`, r32Pairings.find(m => m.id === `M76`)?.home), getWinnerOf(`M78`, r32Pairings.find(m => m.id === `M78`)?.home)));
+    r16.push(createKnockoutMatch(`M92`, getWinnerOf(`M79`, r32Pairings.find(m => m.id === `M79`)?.home), getWinnerOf(`M80`, r32Pairings.find(m => m.id === `M80`)?.home)));
+    r16.push(createKnockoutMatch(`M93`, getWinnerOf(`M83`, r32Pairings.find(m => m.id === `M83`)?.home), getWinnerOf(`M84`, r32Pairings.find(m => m.id === `M84`)?.home)));
+    r16.push(createKnockoutMatch(`M94`, getWinnerOf(`M81`, r32Pairings.find(m => m.id === `M81`)?.home), getWinnerOf(`M82`, r32Pairings.find(m => m.id === `M82`)?.home)));
+    r16.push(createKnockoutMatch(`M95`, getWinnerOf(`M86`, r32Pairings.find(m => m.id === `M86`)?.home), getWinnerOf(`M88`, r32Pairings.find(m => m.id === `M88`)?.home)));
+    r16.push(createKnockoutMatch(`M96`, getWinnerOf(`M85`, r32Pairings.find(m => m.id === `M85`)?.home), getWinnerOf(`M87`, r32Pairings.find(m => m.id === `M87`)?.home)));
+
     // 2. Cuartos de Final - 4 partidos
     const r8 = [];
-    for (let i = 0; i < 4; i++) {
-        const mId = `QF_${i+1}`;
-        const tHome = getWinnerOf(`R16_${(i*2)+1}`, r16[(i*2)].home);
-        const tAway = getWinnerOf(`R16_${(i*2)+2}`, r16[(i*2)+1].home);
-        
-        r8.push({
-            id: mId,
-            home: tHome,
-            away: tAway,
-            homeScore: state.currentUser.bracketPredictions[mId]?.homeScore ?? 0,
-            awayScore: state.currentUser.bracketPredictions[mId]?.awayScore ?? 0,
-            winner: state.currentUser.bracketPredictions[mId]?.winner ?? tHome
-        });
-    }
-    
+    r8.push(createKnockoutMatch(`M97`, getWinnerOf(`M89`, r16.find(m => m.id === `M89`)?.home), getWinnerOf(`M90`, r16.find(m => m.id === `M90`)?.home)));
+    r8.push(createKnockoutMatch(`M98`, getWinnerOf(`M93`, r16.find(m => m.id === `M93`)?.home), getWinnerOf(`M94`, r16.find(m => m.id === `M94`)?.home)));
+    r8.push(createKnockoutMatch(`M99`, getWinnerOf(`M91`, r16.find(m => m.id === `M91`)?.home), getWinnerOf(`M92`, r16.find(m => m.id === `M92`)?.home)));
+    r8.push(createKnockoutMatch(`M100`, getWinnerOf(`M95`, r16.find(m => m.id === `M95`)?.home), getWinnerOf(`M96`, r16.find(m => m.id === `M96`)?.home)));
+
     // 3. Semifinales - 2 partidos
     const r4 = [];
-    for (let i = 0; i < 2; i++) {
-        const mId = `SF_${i+1}`;
-        const tHome = getWinnerOf(`QF_${(i*2)+1}`, r8[(i*2)].home);
-        const tAway = getWinnerOf(`QF_${(i*2)+2}`, r8[(i*2)+1].home);
-        
-        r4.push({
-            id: mId,
-            home: tHome,
-            away: tAway,
-            homeScore: state.currentUser.bracketPredictions[mId]?.homeScore ?? 0,
-            awayScore: state.currentUser.bracketPredictions[mId]?.awayScore ?? 0,
-            winner: state.currentUser.bracketPredictions[mId]?.winner ?? tHome
-        });
-    }
-    
-    // 4. Gran Final - 1 partido
-    const tHomeFinal = getWinnerOf(`SF_1`, r4[0].home);
-    const tAwayFinal = getWinnerOf(`SF_2`, r4[1].home);
-    const r2 = [{
-        id: 'FINAL',
-        home: tHomeFinal,
-        away: tAwayFinal,
-        homeScore: state.currentUser.bracketPredictions['FINAL']?.homeScore ?? 0,
-        awayScore: state.currentUser.bracketPredictions['FINAL']?.awayScore ?? 0,
-        winner: state.currentUser.bracketPredictions['FINAL']?.winner ?? tHomeFinal
-    }];
+    r4.push(createKnockoutMatch(`M101`, getWinnerOf(`M97`, r8.find(m => m.id === `M97`)?.home), getWinnerOf(`M98`, r8.find(m => m.id === `M98`)?.home)));
+    r4.push(createKnockoutMatch(`M102`, getWinnerOf(`M99`, r8.find(m => m.id === `M99`)?.home), getWinnerOf(`M100`, r8.find(m => m.id === `M100`)?.home)));
+
+    // 4. Final - 1 partido
+    const r2 = [];
+    r2.push(createKnockoutMatch(`M104`, getWinnerOf(`M101`, r4.find(m => m.id === `M101`)?.home), getWinnerOf(`M102`, r4.find(m => m.id === `M102`)?.home)));
     
     return { r32: r32Pairings, r16, r8, r4, r2 };
 }
@@ -1231,10 +1211,10 @@ function renderBracketRound() {
         
         let labelText = '';
         switch(state.bracketRound) {
-            case 'r32': labelText = `16° DE FINAL - ${match.id}`; break;
-            case 'r16': labelText = `8° DE FINAL - ${match.id}`; break;
-            case 'r8': labelText = `CUARTOS DE FINAL - ${match.id}`; break;
-            case 'r4': labelText = `SEMIFINAL - ${match.id}`; break;
+            case 'r32': labelText = `16° DE FINAL`; break;
+            case 'r16': labelText = `8° DE FINAL`; break;
+            case 'r8': labelText = `CUARTOS DE FINAL`; break;
+            case 'r4': labelText = `SEMIFINAL`; break;
             case 'r2': labelText = `GRAN FINAL - 🏆 MUNDIAL 2026`; break;
         }
         
@@ -1250,7 +1230,6 @@ function renderBracketRound() {
                 <div class="match-team" style="cursor:pointer;" class="btn-adv-toggle" data-match-id="${match.id}" data-team="${match.home}">
                     ${createCircularFlagHTML(match.home)}
                     <span class="team-name ${isWinnerHome ? 'text-yellow font-bold' : ''}" style="font-size:14px; margin-top:2px;">${CONFIG.COUNTRIES[match.home]?.name || match.home}</span>
-                    <span style="font-size: 10px; color: #888;">${isWinnerHome ? '(GANADOR)' : 'Haga clic para ganar'}</span>
                 </div>
                 
                 <!-- Inputs de Marcador -->
@@ -1272,7 +1251,6 @@ function renderBracketRound() {
                 <div class="match-team" style="cursor:pointer;" class="btn-adv-toggle" data-match-id="${match.id}" data-team="${match.away}">
                     ${createCircularFlagHTML(match.away)}
                     <span class="team-name ${isWinnerAway ? 'text-yellow font-bold' : ''}" style="font-size:14px; margin-top:2px;">${CONFIG.COUNTRIES[match.away]?.name || match.away}</span>
-                    <span style="font-size: 10px; color: #888;">${isWinnerAway ? '(GANADOR)' : 'Haga clic para ganar'}</span>
                 </div>
             </div>
         `;
