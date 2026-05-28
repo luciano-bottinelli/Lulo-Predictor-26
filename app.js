@@ -644,6 +644,7 @@ async function syncWithSupabase() {
             
             // Cargar usuarios de la nube
             cloudUsers.forEach(cu => {
+                const isCurrentUser = state.currentUser && state.currentUser.email === cu.email;
                 const userObj = {
                     email: cu.email,
                     username: cu.username || "",
@@ -651,9 +652,9 @@ async function syncWithSupabase() {
                     teamName: cu.team_name || "",
                     avatar: isNaN(Number(cu.avatar)) ? cu.avatar : Number(cu.avatar),
                     avatarType: cu.avatar_type || "none",
-                    predictions: {},
-                    bracketPredictions: cu.bracket_predictions || {},
-                    specialPredictions: cu.special_predictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
+                    predictions: isCurrentUser ? state.currentUser.predictions : (cu.predictions || {}),
+                    bracketPredictions: isCurrentUser ? state.currentUser.bracketPredictions : (cu.bracket_predictions || {}),
+                    specialPredictions: isCurrentUser ? state.currentUser.specialPredictions : (cu.special_predictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" }),
                     points: cu.points || 0,
                     exactMatches: cu.exact_matches || 0,
                     outcomeMatches: cu.outcome_matches || 0,
@@ -661,6 +662,11 @@ async function syncWithSupabase() {
                     isCPU: cu.is_cpu || false
                 };
                 newUsersList.push(userObj);
+                
+                // Actualizar la referencia del currentUser al nuevo objeto para no romper el estado
+                if (isCurrentUser) {
+                    state.currentUser = userObj;
+                }
             });
             
             // Si falta alguna CPU por defecto, la agregamos
@@ -1189,6 +1195,25 @@ function renderBracketRound() {
     if (!r32Pairings) return;
     
     const bracketData = getKnockoutRoundMatches(r32Pairings);
+    
+    // Función auxiliar para verificar si una ronda está 100% pronosticada
+    const isRoundComplete = (rndMatches) => rndMatches && rndMatches.every(m => {
+        const pred = state.currentUser.bracketPredictions[m.id];
+        // Tiene que tener un winner que no sea TBD, y que ese winner esté entre los dos equipos
+        return pred && pred.winner && pred.winner !== "TBD" && pred.winner !== "" && (pred.winner === m.home || pred.winner === m.away);
+    });
+
+    let lockedMessage = "";
+    if (state.bracketRound === 'r16' && !isRoundComplete(bracketData['r32'])) lockedMessage = "COMPLETA TODOS LOS PARTIDOS DE 16° DE FINAL PRIMERO";
+    else if (state.bracketRound === 'r8' && (!isRoundComplete(bracketData['r32']) || !isRoundComplete(bracketData['r16']))) lockedMessage = "COMPLETA TODOS LOS PARTIDOS DE 8° DE FINAL PRIMERO";
+    else if (state.bracketRound === 'r4' && (!isRoundComplete(bracketData['r32']) || !isRoundComplete(bracketData['r16']) || !isRoundComplete(bracketData['r8']))) lockedMessage = "COMPLETA TODOS LOS PARTIDOS DE CUARTOS PRIMERO";
+    else if (state.bracketRound === 'r2' && (!isRoundComplete(bracketData['r32']) || !isRoundComplete(bracketData['r16']) || !isRoundComplete(bracketData['r8']) || !isRoundComplete(bracketData['r4']))) lockedMessage = "COMPLETA TODOS LOS PARTIDOS DE SEMIFINAL PRIMERO";
+
+    if (lockedMessage !== "") {
+        deck.innerHTML = `<div class="retro-panel text-center" style="grid-column: 1/-1;"><p style="font-family: var(--font-pixel-heading); font-size: 10px; padding: 24px; color: var(--yellow);">🔒 ${lockedMessage}</p></div>`;
+        return;
+    }
+    
     const roundMatches = bracketData[state.bracketRound];
     
     if (!roundMatches || roundMatches.length === 0) return;
@@ -2332,7 +2357,7 @@ function renderMatches() {
             footerHTML = `
                 <span class="disk-indicator ${pred.saved ? 'saved' : 'pending'}">💾</span>
                 <div class="match-save-action">
-                    <button class="retro-btn btn-save-pred small-btn" data-match-id="${match.id}">${pred.saved ? 'ACTUALIZAR' : 'PRONOSTICAR'}</button>
+                    <button class="retro-btn btn-save-pred small-btn" data-match-id="${match.id}">${pred.saved ? 'ACTUALIZAR' : 'GUARDAR'}</button>
                 </div>
             `;
         }
