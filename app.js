@@ -443,10 +443,15 @@ function getFlagSVGContent(code, props) {
 }
 
 function createCircularFlagHTML(countryCode) {
+    const iso = ISO_FLAGS[countryCode];
+    const flagContent = iso 
+        ? `<img src="https://flagcdn.com/w160/${iso}.png" style="width: 100%; height: 100%; object-fit: cover;" />`
+        : getFlagSVG(countryCode); // Fallback al viejo SVG si no encuentra
+
     return `
         <div class="retro-flag-container" title="${CONFIG.COUNTRIES[countryCode]?.name || countryCode}">
             <div class="retro-flag">
-                ${getFlagSVG(countryCode)}
+                ${flagContent}
                 <div class="flag-inner-shadow"></div>
                 <div class="flag-pixel-mesh"></div>
                 <div class="flag-glossy-overlay"></div>
@@ -1355,7 +1360,11 @@ function setupNavigation() {
                 document.querySelector('[data-subtab="global-standings-view"]').click();
             }
             else if (tabId === 'profile-tab') renderProfileStats();
-            // Admin tab removed — all admin ops are done from dev tools
+            else if (tabId === 'config-tab') {
+                if (state.currentUser) {
+                    document.getElementById('config-team-name').value = state.currentUser.teamName || "";
+                }
+            }
         });
     });
     
@@ -1773,7 +1782,7 @@ function setupNavigation() {
     });
     
     // Salir (Cerrar Sesión)
-    document.getElementById('btn-logout').addEventListener('click', () => {
+    const handleLogout = () => {
         state.currentUser = null;
         localStorage.removeItem('predictor_lulo_session');
         Sound.playClick();
@@ -1783,13 +1792,44 @@ function setupNavigation() {
         document.getElementById('login-screen').classList.remove('inactive-screen');
         document.getElementById('login-screen').classList.add('active-screen');
         
+        // Reset inputs
+        document.getElementById('auth-input').value = '';
         document.getElementById('auth-username').value = '';
         document.getElementById('auth-password').value = '';
         state.authMode = "login";
         document.getElementById('submit-auth-text').innerText = "INICIAR SESIÓN";
         document.getElementById('btn-toggle-auth-mode').innerText = "¿No tienes cuenta? REGÍSTRATE AQUÍ";
         document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR`;
-    });
+    }; // Fin de handleLogout
+
+    document.getElementById('btn-logout').addEventListener('click', handleLogout);
+    const btnConfigLogout = document.getElementById('btn-config-logout');
+    if (btnConfigLogout) btnConfigLogout.addEventListener('click', handleLogout);
+    
+    // Guardar Configuración
+    const btnSaveConfig = document.getElementById('btn-save-config');
+    if (btnSaveConfig) {
+        btnSaveConfig.addEventListener('click', async () => {
+            if (!state.currentUser) return;
+            const newTeamName = document.getElementById('config-team-name').value.trim();
+            if (newTeamName) {
+                state.currentUser.teamName = newTeamName;
+                saveDatabaseLocally();
+                
+                if (supabaseDb) {
+                    try {
+                        await supabaseDb.from('users').update({ team_name: newTeamName }).eq('email', state.currentUser.email);
+                    } catch (e) {
+                        console.error("Fallo al actualizar nombre de equipo en Supabase:", e);
+                    }
+                }
+                
+                updateManagerUIStats();
+                showToast("Configuración Guardada");
+                Sound.playDisk();
+            }
+        });
+    }
     
     // CLANES: Acciones de botones
     document.getElementById('btn-open-create-clan').addEventListener('click', () => {
@@ -2049,7 +2089,7 @@ function renderActiveClanLeaderboard() {
                     <img src="${avatarImg}" alt="${user.username}" class="row-avatar">
                     <div>
                         <div style="font-family: var(--font-pixel-heading); font-size: 7px; color: var(--win-blue);">${user.teamName.toUpperCase()}</div>
-                        <div style="font-size: 11px;">Mánager: <span class="text-yellow">${user.username}</span> ${user.isCPU ? '<span class="text-gray" style="font-size:9px;">(CPU)</span>' : ''}</div>
+                        <div style="font-size: 11px; color: #333;">Mánager: <span style="color: #000; font-weight: bold;">${user.username}</span> ${user.isCPU ? '<span style="color: #666; font-size:9px;">(CPU)</span>' : ''}</div>
                     </div>
                 </div>
             </td>
@@ -2214,7 +2254,7 @@ function renderStandings() {
                     <img src="${avatarImg}" alt="${user.username}" class="row-avatar">
                     <div>
                         <div style="font-family: var(--font-pixel-heading); font-size: 7px; color: var(--win-blue);">${user.teamName.toUpperCase()}</div>
-                        <div style="font-size: 11px;">Mánager: <span class="text-yellow">${user.username}</span> ${user.isCPU ? '<span class="text-gray" style="font-size:9px;">(CPU)</span>' : ''}</div>
+                        <div style="font-size: 11px; color: #333;">Mánager: <span style="color: #000; font-weight: bold;">${user.username}</span> ${user.isCPU ? '<span style="color: #666; font-size:9px;">(CPU)</span>' : ''}</div>
                     </div>
                 </div>
             </td>
@@ -2249,7 +2289,7 @@ function renderMatches() {
     filteredMatches.forEach(match => {
         const card = document.createElement('div');
         card.className = 'match-card';
-        const pred = state.currentUser.predictions[match.id] || { homeScore: "", awayScore: "", saved: false };
+        const pred = state.currentUser.predictions[match.id] || { homeScore: 0, awayScore: 0, saved: false };
         
         let footerHTML = '';
         if (match.played) {

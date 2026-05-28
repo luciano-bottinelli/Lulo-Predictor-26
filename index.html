@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LULO PIXEL CUP - Copa del Mundo 2026</title>
+    <title>PIXEL CUP - Copa del Mundo 2026</title>
     <!-- Google Fonts: VT323 for retro numbers/menus, Press Start 2P for small retro pixel text, Outfit for clean body text -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,7 +57,7 @@
         <header class="retro-header-bar">
             <div class="header-logo">
                 <span class="logo-pc">PC</span>
-                <span class="logo-prode">LULO PIXEL CUP '26</span>
+                <span class="logo-prode">PIXEL CUP '26</span>
             </div>
             <div class="header-controls">
                 <button id="toggle-crt" class="retro-btn small-btn active-state" title="Alternar Efecto CRT Monitor">CRT: ON</button>
@@ -70,11 +70,11 @@
         <main id="login-screen" class="active-screen">
             <div class="retro-window max-w-md">
                 <div class="window-title-bar">
-                    <span class="window-title-text">LULO PIXEL CUP</span>
+                    <span class="window-title-text">PIXEL CUP</span>
                     <button class="window-close-btn" disabled>X</button>
                 </div>
                 <div class="window-content text-center">
-                    <h1 class="game-main-title">LULO PIXEL CUP</h1>
+                    <h1 class="game-main-title">PIXEL CUP</h1>
                     <p class="game-subtitle">MUNDIAL 2026</p>
                     
                     <div class="intro-graphics">
@@ -213,6 +213,9 @@
                 </button>
                 <button class="tab-btn" data-tab="profile-tab">
                     <span class="tab-icon">👤</span> MI HISTORIAL
+                </button>
+                <button class="tab-btn" data-tab="config-tab">
+                    <span class="tab-icon">⚙️</span> CONFIGURACIÓN
                 </button>
 
                 <button id="btn-logout" class="tab-btn logout-btn">
@@ -556,8 +559,22 @@
                     </div>
                 </section>
 
-
-
+                <!-- 5. PESTAÑA: CONFIGURACIÓN -->
+                <section id="config-tab" class="tab-content inactive-tab">
+                    <div class="retro-panel" style="max-width: 500px; margin: 0 auto; padding: 24px;">
+                        <h2 style="font-family: var(--font-pixel-heading); font-size: 16px; margin-bottom: 20px; color: var(--win-blue); border-bottom: 2px solid var(--pixel-dark-green); padding-bottom: 10px;">AJUSTES DE MÁNAGER</h2>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-family: var(--font-pixel-heading); font-size: 10px; margin-bottom: 8px;">NOMBRE DE EQUIPO:</label>
+                            <input type="text" id="config-team-name" class="retro-input" style="width: 100%; box-sizing: border-box;" maxlength="24">
+                        </div>
+                        
+                        <button id="btn-save-config" class="retro-btn primary pulse" style="width: 100%; margin-bottom: 30px;">GUARDAR CAMBIOS</button>
+                        
+                        <h2 style="font-family: var(--font-pixel-heading); font-size: 12px; margin-bottom: 15px; color: #da291c;">ZONA DE PELIGRO</h2>
+                        <button id="btn-config-logout" class="retro-btn text-center" style="width: 100%; background: #aa0000; color: white;">CERRAR SESIÓN</button>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
