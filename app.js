@@ -1694,73 +1694,7 @@ function setupNavigation() {
             submitBtn.disabled = false;
         }
     });
-    
-    // Autenticación con Google (Simulación Retro)
-    document.getElementById('btn-google-auth').addEventListener('click', () => {
-        Sound.playClick();
-        showToast("Conectando con Google API...");
-        setTimeout(async () => {
-            const googleEmail = "manager.google@gmail.com";
-            const googleUser = "GoogleManager";
-            let userObj = state.users.find(u => u.email && u.email.toLowerCase() === googleEmail && !u.isCPU);
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
-            
-            if (!userObj) {
-                userObj = {
-                    email: googleEmail,
-                    username: googleUser,
-                    password: "google_account_token_96",
-                    teamName: "",
-                    avatar: 0,
-                    avatarType: "predefined",
-                    predictions: {},
-                    bracketPredictions: {},
-                    specialPredictions: { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
-                    points: 0,
-                    exactMatches: 0,
-                    outcomeMatches: 0,
-                    joinedDate: dateStr
-                };
-                state.users.push(userObj);
-                
-                if (supabaseDb) {
-                    try {
-                        await supabaseDb.from('users').insert({
-                            email: userObj.email,
-                            username: userObj.username,
-                            password: userObj.password,
-                            team_name: userObj.teamName,
-                            avatar: String(userObj.avatar),
-                            avatar_type: userObj.avatarType,
-                            predictions: userObj.predictions,
-                            bracket_predictions: userObj.bracketPredictions,
-                            special_predictions: userObj.specialPredictions,
-                            points: userObj.points,
-                            exact_matches: userObj.exactMatches,
-                            outcome_matches: userObj.outcomeMatches,
-                            joined_date: userObj.joinedDate,
-                            is_cpu: false
-                        });
-                    } catch (e) {
-                        console.error("Fallo al registrar usuario Google en Supabase:", e);
-                    }
-                }
-            }
-            
-            state.currentUser = userObj;
-            if (!state.currentUser.bracketPredictions) state.currentUser.bracketPredictions = {};
-            if (!state.currentUser.specialPredictions) state.currentUser.specialPredictions = { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" };
-            
-            saveDatabase();
-            showToast("Google Conectado Exitosamente!");
-            Sound.playFanfare();
-            
-            if (!userObj.teamName) transitionToOnboarding();
-            else transitionToDashboard();
-        }, 1000);
-    });
-    
+
     // Manejar Quitar Foto / Sin Foto en Onboarding
     document.getElementById('btn-remove-avatar').addEventListener('click', () => {
         Sound.playClick();
