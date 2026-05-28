@@ -441,6 +441,15 @@ function getFlagSVGContent(code, props) {
         </svg>
     `;
 }
+const ISO_FLAGS = {
+    ARG: 'ar', VEN: 've', BRA: 'br', FRA: 'fr', GER: 'de', ESP: 'es', URU: 'uy', ENG: 'gb-eng',
+    MEX: 'mx', USA: 'us', ITA: 'it', JPN: 'jp', CAN: 'ca', COL: 'co', SEN: 'sn', BEL: 'be',
+    KOR: 'kr', CRO: 'hr', MAR: 'ma', SWE: 'se', CMR: 'cm', PAR: 'py', TUN: 'tn', NED: 'nl',
+    POR: 'pt', EGY: 'eg', ECU: 'ec', SUI: 'ch', POL: 'pl', NGA: 'ng', GHA: 'gh', KSA: 'sa',
+    RSA: 'za', COD: 'cd', BIH: 'ba', QAT: 'qa', HAI: 'ht', SCO: 'gb-sct', AUS: 'au', CZE: 'cz',
+    CUW: 'cw', CIV: 'ci', IRN: 'ir', NZL: 'nz', CPV: 'cv', IRQ: 'iq', NOR: 'no', ALG: 'dz',
+    AUT: 'at', JOR: 'jo', TUR: 'tr', UZB: 'uz', PAN: 'pa'
+};
 
 function createCircularFlagHTML(countryCode) {
     const iso = ISO_FLAGS[countryCode];
