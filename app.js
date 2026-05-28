@@ -4,7 +4,7 @@
 
 // ================= CONFIGURACIÓN Y ESTADO INICIAL =================
 
-const DEFAULT_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23888888" style="background:%23222222"><circle cx="50" cy="35" r="20"/><path d="M50 60c-25 0-35 15-35 25v5h70v-5c0-10-10-25-35-25z"/></svg>`;
+const DEFAULT_AVATAR = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23888888' style='background:%23222222'><circle cx='50' cy='35' r='20'/><path d='M50 60c-25 0-35 15-35 25v5h70v-5c0-10-10-25-35-25z'/></svg>`;
 
 const CONFIG = {
     // Definición de las 48 selecciones oficiales
@@ -407,6 +407,27 @@ function getFlagSVGContent(code, props) {
         case 'POR':
             innerContent = `<rect width="40" height="100" fill="${props.colors.green}"/><rect x="40" width="60" height="100" fill="${props.colors.red}"/><circle cx="40" cy="50" r="10" fill="#ffff00" stroke="#000" stroke-width="1"/>`;
             break;
+        case 'RSA': innerContent = `<rect width="100" height="100" fill="#007749"/><polygon points="0,0 40,50 0,100" fill="#000"/><polygon points="0,10 35,50 0,90" fill="#ffb81c"/><polygon points="100,0 50,50 100,100" fill="#e03c31"/><polygon points="100,20 60,50 100,80" fill="#001489"/>`; break;
+        case 'COD': innerContent = `<rect width="100" height="100" fill="#007fff"/><polygon points="0,100 100,0 100,20 0,120" fill="#fcd116"/><polygon points="0,100 100,0 100,15 0,115" fill="#ce1021"/><circle cx="20" cy="20" r="10" fill="#fcd116"/>`; break;
+        case 'BIH': innerContent = `<rect width="100" height="100" fill="#002395"/><polygon points="25,0 75,50 25,100" fill="#fcd116"/>`; break;
+        case 'QAT': innerContent = `<rect width="100" height="100" fill="#8a1538"/><polygon points="0,0 30,0 30,100 0,100" fill="#fff"/>`; break;
+        case 'HAI': innerContent = `<rect width="100" height="50" fill="#00205b"/><rect y="50" width="100" height="50" fill="#d21034"/><rect x="40" y="40" width="20" height="20" fill="#fff"/>`; break;
+        case 'SCO': innerContent = `<rect width="100" height="100" fill="#004B84"/><polygon points="0,0 10,0 100,90 100,100 90,100 0,10" fill="#fff"/><polygon points="100,0 90,0 0,90 0,100 10,100 100,10" fill="#fff"/>`; break;
+        case 'AUS': innerContent = `<rect width="100" height="100" fill="#00008b"/><rect width="40" height="40" fill="#fff"/><rect x="10" y="10" width="20" height="20" fill="#ff0000"/><circle cx="20" cy="70" r="8" fill="#fff"/><circle cx="75" cy="50" r="15" fill="#fff"/>`; break;
+        case 'CZE': innerContent = `<rect width="100" height="50" fill="#fff"/><rect y="50" width="100" height="50" fill="#d7141a"/><polygon points="0,0 50,50 0,100" fill="#11457e"/>`; break;
+        case 'CUW': innerContent = `<rect width="100" height="100" fill="#002b7f"/><rect y="65" width="100" height="15" fill="#f9e814"/><circle cx="20" cy="25" r="4" fill="#fff"/><circle cx="35" cy="40" r="6" fill="#fff"/>`; break;
+        case 'CIV': innerContent = `<rect width="33.3" height="100" fill="#ff8200"/><rect x="33.3" width="33.4" height="100" fill="#fff"/><rect x="66.7" width="33.3" height="100" fill="#009e60"/>`; break;
+        case 'IRN': innerContent = `<rect width="100" height="33.3" fill="#239f40"/><rect y="33.3" width="100" height="33.4" fill="#fff"/><rect y="66.7" width="100" height="33.3" fill="#da0000"/><circle cx="50" cy="50" r="10" fill="#da0000"/>`; break;
+        case 'NZL': innerContent = `<rect width="100" height="100" fill="#00247d"/><rect width="40" height="40" fill="#fff"/><rect x="10" y="10" width="20" height="20" fill="#cc142b"/><circle cx="75" cy="50" r="10" fill="#cc142b" stroke="#fff" stroke-width="2"/>`; break;
+        case 'CPV': innerContent = `<rect width="100" height="100" fill="#003893"/><rect y="50" width="100" height="25" fill="#fff"/><rect y="55" width="100" height="15" fill="#cf2027"/><circle cx="35" cy="62.5" r="20" fill="none" stroke="#fcd116" stroke-width="4" stroke-dasharray="2,4"/>`; break;
+        case 'IRQ': innerContent = `<rect width="100" height="33.3" fill="#ce1126"/><rect y="33.3" width="100" height="33.4" fill="#fff"/><rect y="66.7" width="100" height="33.3" fill="#000"/><circle cx="50" cy="50" r="8" fill="#007a3d"/>`; break;
+        case 'NOR': innerContent = `<rect width="100" height="100" fill="#ba0c2f"/><rect x="25" width="20" height="100" fill="#fff"/><rect y="40" width="100" height="20" fill="#fff"/><rect x="30" width="10" height="100" fill="#00205b"/><rect y="45" width="100" height="10" fill="#00205b"/>`; break;
+        case 'ALG': innerContent = `<rect width="50" height="100" fill="#006233"/><rect x="50" width="50" height="100" fill="#fff"/><circle cx="50" cy="50" r="20" fill="#d21034"/><circle cx="55" cy="50" r="16" fill="#fff"/><polygon points="60,45 65,55 55,55" fill="#d21034"/>`; break;
+        case 'AUT': innerContent = `<rect width="100" height="33.3" fill="#ed2939"/><rect y="33.3" width="100" height="33.4" fill="#fff"/><rect y="66.7" width="100" height="33.3" fill="#ed2939"/>`; break;
+        case 'JOR': innerContent = `<rect width="100" height="33.3" fill="#000"/><rect y="33.3" width="100" height="33.4" fill="#fff"/><rect y="66.7" width="100" height="33.3" fill="#007a3d"/><polygon points="0,0 50,50 0,100" fill="#ce1126"/><circle cx="15" cy="50" r="5" fill="#fff"/>`; break;
+        case 'TUR': innerContent = `<rect width="100" height="100" fill="#e30a17"/><circle cx="40" cy="50" r="25" fill="#fff"/><circle cx="48" cy="50" r="20" fill="#e30a17"/><polygon points="70,45 75,55 65,55" fill="#fff"/>`; break;
+        case 'UZB': innerContent = `<rect width="100" height="33.3" fill="#009eb6"/><rect y="33.3" width="100" height="33.4" fill="#fff"/><rect y="66.7" width="100" height="33.3" fill="#1eb53a"/><rect y="31" width="100" height="2" fill="#ce1126"/><rect y="67" width="100" height="2" fill="#ce1126"/><circle cx="20" cy="16" r="8" fill="#fff"/><circle cx="24" cy="16" r="7" fill="#009eb6"/>`; break;
+        case 'PAN': innerContent = `<rect width="50" height="50" fill="#fff"/><rect x="50" width="50" height="50" fill="#da291c"/><rect y="50" width="50" height="50" fill="#002b7f"/><rect x="50" y="50" width="50" height="50" fill="#fff"/><circle cx="25" cy="25" r="10" fill="#002b7f"/><circle cx="75" cy="75" r="10" fill="#da291c"/>`; break;
         default:
             if (props.colors && props.colors.primary && props.colors.secondary) {
                 innerContent = `<rect width="100" height="50" fill="${props.colors.primary}"/><rect y="50" width="100" height="50" fill="${props.colors.secondary}"/>`;
@@ -2018,7 +2039,7 @@ function renderActiveClanLeaderboard() {
             tr.className = 'user-row';
         }
         
-        let avatarImg = user.avatarType === 'custom' ? user.avatar : DEFAULT_AVATAR;
+        let avatarImg = (user.avatarType === 'custom' && user.avatar) ? user.avatar : DEFAULT_AVATAR;
         const matchesPlayed = state.matches.filter(m => m.played && user.predictions[m.id]?.saved).length;
         
         tr.innerHTML = `
@@ -2183,7 +2204,7 @@ function renderStandings() {
             tr.className = 'user-row';
         }
         
-        let avatarImg = user.avatarType === 'custom' ? user.avatar : DEFAULT_AVATAR;
+        let avatarImg = (user.avatarType === 'custom' && user.avatar) ? user.avatar : DEFAULT_AVATAR;
         const matchesPlayed = state.matches.filter(m => m.played && user.predictions[m.id]?.saved).length;
         
         tr.innerHTML = `
