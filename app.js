@@ -1984,6 +1984,30 @@ function setupNavigation() {
         });
     });
     
+    document.getElementById('btn-edit-clan-code').addEventListener('click', async () => {
+        if (!state.activeClan) return;
+        const newCode = prompt("Ingresa el nuevo código para el clan:", state.activeClan.code);
+        if (newCode !== null && newCode.trim() !== "") {
+            const finalCode = newCode.trim().toUpperCase();
+            state.activeClan.code = finalCode;
+            
+            const clanInState = state.clans.find(c => c.id === state.activeClan.id);
+            if (clanInState) clanInState.code = finalCode;
+            saveDatabaseLocally();
+            
+            if (supabaseDb) {
+                try {
+                    await supabaseDb.from('clans').update({ code: finalCode }).eq('id', state.activeClan.id);
+                } catch (e) {
+                    console.error("Error updating clan code in Supabase:", e);
+                }
+            }
+            
+            renderClans();
+            showToast("Código de clan actualizado");
+        }
+    });
+    
     // Admin panel removed — admin operations done from developer tools only
 }
 
