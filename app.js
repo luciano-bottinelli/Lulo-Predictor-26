@@ -116,6 +116,7 @@ const CPU_PLAYERS = [
 // Estado global de la aplicación
 let state = {
     currentUser: null,  
+    viewingUser: null,  // Usuario cuyo perfil estamos viendo (null = currentUser)
     matches: [],        // Fase de grupos (72 partidos generados dinámicamente)
     users: [],          
     clans: [],          
@@ -1498,9 +1499,28 @@ function setupNavigation() {
             activeContent.classList.remove('inactive-tab');
             activeContent.classList.add('active-tab');
             
+            if (tabId === 'profile-tab') {
+                state.viewingUser = null; // Al tocar manualmente la pestaña, vemos nuestro perfil
+            }
+            
             refreshActiveTab();
         });
     });
+    
+    // Función global para abrir el perfil de otro usuario
+    window.openUserProfile = function(username) {
+        const user = state.users.find(u => u.username === username);
+        if (!user) return;
+        
+        state.viewingUser = user;
+        
+        // Simular click en la pestaña de perfil
+        document.querySelector('.tab-btn[data-tab="profile-tab"]').click();
+        
+        // Volver a setear viewingUser porque el click simulado lo borró, y renderizar de nuevo
+        state.viewingUser = user;
+        renderProfileStats();
+    };
     
     // 2. SUB-TABS CLASIFICACIONES (GLOBAL VS CLANES)
     document.querySelectorAll('.sub-tab-btn').forEach(btn => {
@@ -2202,7 +2222,7 @@ function renderActiveClanLeaderboard() {
         
         tr.innerHTML = `
             <td class="text-center table-rank">${index + 1}º</td>
-            <td>
+            <td style="cursor: pointer;" onclick="openUserProfile('${user.username}')" title="Ver perfil de ${user.username}">
                 <div class="row-manager-info">
                     <img src="${avatarImg}" alt="${user.username}" class="row-avatar">
                     <div>
@@ -2295,19 +2315,20 @@ async function handleJoinClan() {
 // ================= ESTADÍSTICAS DEL PERFIL =================
 
 function renderProfileStats() {
-    if (!state.currentUser) return;
+    const userToView = state.viewingUser || state.currentUser;
+    if (!userToView) return;
     
     const avatarEl = document.getElementById('profile-large-avatar');
-    avatarEl.src = state.currentUser.avatarType === 'custom' ? state.currentUser.avatar : DEFAULT_AVATAR;
+    avatarEl.src = userToView.avatarType === 'custom' ? userToView.avatar : DEFAULT_AVATAR;
     
-    document.getElementById('profile-large-name').innerText = state.currentUser.username;
-    document.getElementById('profile-large-team').innerText = state.currentUser.teamName.toUpperCase();
-    document.getElementById('manager-joined-date').innerText = state.currentUser.joinedDate || "2026/05/28";
+    document.getElementById('profile-large-name').innerText = userToView.username;
+    document.getElementById('profile-large-team').innerText = userToView.teamName.toUpperCase();
+    document.getElementById('manager-joined-date').innerText = userToView.joinedDate || "2026/05/28";
     
     const totalMatches = state.matches.filter(m => m.stage.startsWith('GROUP_')).length;
-    const predictedCount = Object.values(state.currentUser.predictions).filter(p => p.saved).length;
-    const exactCount = state.currentUser.exactMatches;
-    const outcomeCount = state.currentUser.outcomeMatches;
+    const predictedCount = Object.values(userToView.predictions).filter(p => p.saved).length;
+    const exactCount = userToView.exactMatches;
+    const outcomeCount = userToView.outcomeMatches;
     
     document.getElementById('stat-matches-predicted').innerText = `${predictedCount} / ${totalMatches}`;
     document.getElementById('bar-predicted').style.width = `${(predictedCount / totalMatches) * 100}%`;
@@ -2319,12 +2340,21 @@ function renderProfileStats() {
     
     const playedMatchesCount = state.matches.filter(m => m.played).length;
     const maxPossiblePoints = playedMatchesCount * 15; // 15 pts max en grupos
-    const efficiency = maxPossiblePoints > 0 ? ((state.currentUser.points / maxPossiblePoints) * 100).toFixed(1) : "0.0";
+    const efficiency = maxPossiblePoints > 0 ? ((userToView.points / maxPossiblePoints) * 100).toFixed(1) : "0.0";
     
     document.getElementById('stat-efficiency').innerText = `${efficiency}%`;
     document.getElementById('bar-efficiency').style.width = `${Math.min(100, parseFloat(efficiency))}%`;
     
-    renderTrophies(predictedCount, exactCount, outcomeCount);
+    // Cargar predicciones especiales fuertes
+    const spec = userToView.specialPredictions || {};
+    const predsHTML = `
+        <div style="font-size: 11px; margin-bottom: 8px;">👑 Campeón: <strong class="text-yellow">${spec.champion || "No elegido"}</strong></div>
+        <div style="font-size: 11px; margin-bottom: 8px;">👟 Máx. Goleador: <strong class="text-cyan">${spec.scorer || "No elegido"}</strong></div>
+        <div style="font-size: 11px; margin-bottom: 8px;">🎯 Máx. Asistidor: <strong class="text-green">${spec.assister || "No elegido"}</strong></div>
+        <div style="font-size: 11px;">⭐ MVP: <strong class="text-yellow">${spec.mvp || "No elegido"}</strong></div>
+    `;
+    const predsContainer = document.getElementById('profile-special-preds');
+    if (predsContainer) predsContainer.innerHTML = predsHTML;
 }
 
 function renderTrophies(predictedCount, exactCount, outcomeCount) {
@@ -2367,7 +2397,7 @@ function renderStandings() {
         
         tr.innerHTML = `
             <td class="text-center table-rank">${index + 1}º</td>
-            <td>
+            <td style="cursor: pointer;" onclick="openUserProfile('${user.username}')" title="Ver perfil de ${user.username}">
                 <div class="row-manager-info">
                     <img src="${avatarImg}" alt="${user.username}" class="row-avatar">
                     <div>

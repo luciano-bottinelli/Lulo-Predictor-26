@@ -212,7 +212,7 @@
                     <span class="tab-icon">🏆</span> CLASIFICACIONES
                 </button>
                 <button class="tab-btn" data-tab="profile-tab">
-                    <span class="tab-icon">👤</span> MI HISTORIAL
+                    <span class="tab-icon">👤</span> MI PERFIL
                 </button>
                 <button class="tab-btn" data-tab="config-tab">
                     <span class="tab-icon">⚙️</span> CONFIGURACIÓN
@@ -447,7 +447,7 @@
                     </div>
                 </section>
 
-                <!-- 4. PESTAÑA: MI HISTORIAL & ESTADÍSTICAS -->
+                <!-- 4. PESTAÑA: MI PERFIL & ESTADÍSTICAS -->
                 <section id="profile-tab" class="tab-content inactive-tab">
                     <div class="profile-layout">
                         <div class="profile-col-left">
@@ -469,16 +469,7 @@
                                 </div>
                             </div>
 
-                            <div class="retro-window margin-top">
-                                <div class="window-title-bar">
-                                    <span class="window-title-text">🏅 VITRINA DE TROFEOS</span>
-                                </div>
-                                <div class="window-content">
-                                    <div id="trophies-container" class="trophies-grid">
-                                        <!-- Cargado con JS -->
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Vitrina de trofeos eliminada -->
                         </div>
 
                         <div class="profile-col-right">
@@ -509,10 +500,22 @@
                                             <div class="stat-bar-container"><div id="bar-efficiency" class="stat-bar-fill yellow-bar" style="width: 0%;"></div></div>
                                         </div>
                                     </div>
+                                    </div>
+                            </div> <!-- Cierra retro-window stats -->
+
+                            <div class="retro-window margin-top">
+                                <div class="window-title-bar">
+                                    <span class="window-title-text">🔮 PREDICCIONES FUERTES</span>
+                                </div>
+                                <div class="window-content">
+                                    <div id="profile-special-preds" class="retro-panel" style="padding: 15px; font-family: var(--font-pixel);">
+                                        <!-- Cargado con JS -->
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+
+                        </div> <!-- Cierra profile-col-right -->
+                    </div> <!-- Cierra profile-layout -->
                 </section>
 
                 <!-- 5. PESTAÑA: CONFIGURACIÓN -->
