@@ -7,55 +7,72 @@
 const DEFAULT_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23888888" style="background:%23222222"><circle cx="50" cy="35" r="20"/><path d="M50 60c-25 0-35 15-35 25v5h70v-5c0-10-10-25-35-25z"/></svg>`;
 
 const CONFIG = {
-    AVATARS: [],
+    // Definición de las 48 selecciones oficiales
     COUNTRIES: {
-        ARG: { name: "Argentina", colors: { bg: "#74acdf", stripe: "#ffffff", sun: "#f9d149" } },
-        VEN: { name: "Venezuela", colors: { yellow: "#fcd116", blue: "#003893", red: "#cf142b" } },
-        BRA: { name: "Brasil", colors: { green: "#009c3b", yellow: "#ffe000", blue: "#002776" } },
-        FRA: { name: "Francia", colors: { blue: "#002395", white: "#ffffff", red: "#ed2939" } },
-        GER: { name: "Alemania", colors: { black: "#000000", red: "#dd0000", gold: "#ffcf00" } },
-        ESP: { name: "España", colors: { red: "#c60b1e", gold: "#ffc400" } },
-        URU: { name: "Uruguay", colors: { blue: "#0081c8", white: "#ffffff", sun: "#f9d149" } },
-        ENG: { name: "Inglaterra", colors: { white: "#ffffff", red: "#cf081f" } },
-        MEX: { name: "México", colors: { green: "#006847", white: "#ffffff", red: "#c8102e" } },
-        USA: { name: "EE.UU.", colors: { blue: "#002868", red: "#bf0a30", white: "#ffffff" } },
-        ITA: { name: "Italia", colors: { green: "#009246", white: "#ffffff", red: "#ce2b37" } },
-        JPN: { name: "Japón", colors: { white: "#ffffff", red: "#bc002d" } },
-        CAN: { name: "Canadá", colors: { red: "#ff0000", white: "#ffffff" } },
-        COL: { name: "Colombia", colors: { yellow: "#fcd116", blue: "#003893", red: "#ce1126" } },
-        SEN: { name: "Senegal", colors: { green: "#00853f", yellow: "#fdef42", red: "#e31b23" } },
-        BEL: { name: "Bélgica", colors: { black: "#000000", red: "#fdda24", gold: "#ef3340" } },
-        KOR: { name: "Corea Sur", colors: { white: "#ffffff", red: "#cd2e3a", blue: "#0047a0" } },
-        CRO: { name: "Croacia", colors: { red: "#ff0000", white: "#ffffff" } },
-        MAR: { name: "Marruecos", colors: { red: "#c1272d", green: "#006233" } },
-        SWE: { name: "Suecia", colors: { blue: "#006aa7", yellow: "#fecc00" } },
-        CMR: { name: "Camerún", colors: { green: "#007a5e", red: "#ce1126", yellow: "#fcd116" } },
-        PAR: { name: "Paraguay", colors: { red: "#d52b1e", white: "#ffffff", blue: "#0038a8" } },
-        TUN: { name: "Túnez", colors: { red: "#e2011a", white: "#ffffff" } },
-        NED: { name: "P. Bajos", colors: { orange: "#ff4f00", white: "#ffffff" } },
-        POR: { name: "Portugal", colors: { green: "#006600", red: "#ff0000" } },
-        EGY: { name: "Egipto", colors: { red: "#c09300", black: "#000000" } },
-        ECU: { name: "Ecuador", colors: { yellow: "#ffdd00", blue: "#034ea2", red: "#da291c" } },
-        SUI: { name: "Suiza", colors: { red: "#da291c", white: "#ffffff" } },
-        POL: { name: "Polonia", colors: { white: "#ffffff", red: "#eb3323" } },
-        NGA: { name: "Nigeria", colors: { green: "#008751", white: "#ffffff" } },
-        GHA: { name: "Ghana", colors: { red: "#e2011a", yellow: "#fdef42", green: "#00853f" } },
-        KSA: { name: "Arabia S.", colors: { green: "#006c35", white: "#ffffff" } }
+        ARG: { name: "Argentina", colors: { primary: "#74acdf", secondary: "#ffffff" } },
+        BRA: { name: "Brasil", colors: { primary: "#009c3b", secondary: "#ffdf00" } },
+        VEN: { name: "Venezuela", colors: { primary: "#800000", secondary: "#ffcc00" } },
+        FRA: { name: "Francia", colors: { primary: "#002395", secondary: "#ffffff" } },
+        GER: { name: "Alemania", colors: { primary: "#000000", secondary: "#ffffff" } },
+        ESP: { name: "España", colors: { primary: "#c60b1e", secondary: "#ffc400" } },
+        URU: { name: "Uruguay", colors: { primary: "#0081c8", secondary: "#ffffff" } },
+        ENG: { name: "Inglaterra", colors: { primary: "#ffffff", secondary: "#cf081f" } },
+        MEX: { name: "México", colors: { primary: "#006847", secondary: "#ffffff" } },
+        USA: { name: "EE.UU.", colors: { primary: "#002868", secondary: "#ffffff" } },
+        JPN: { name: "Japón", colors: { primary: "#000555", secondary: "#ffffff" } },
+        CAN: { name: "Canadá", colors: { primary: "#ff0000", secondary: "#ffffff" } },
+        COL: { name: "Colombia", colors: { primary: "#fcd116", secondary: "#003893" } },
+        SEN: { name: "Senegal", colors: { primary: "#ffffff", secondary: "#00853f" } },
+        BEL: { name: "Bélgica", colors: { primary: "#e30613", secondary: "#000000" } },
+        KOR: { name: "Corea Sur", colors: { primary: "#cd2e3a", secondary: "#ffffff" } },
+        CRO: { name: "Croacia", colors: { primary: "#ff0000", secondary: "#ffffff" } },
+        MAR: { name: "Marruecos", colors: { primary: "#c1272d", secondary: "#006233" } },
+        SWE: { name: "Suecia", colors: { primary: "#fecc00", secondary: "#006aa7" } },
+        PAR: { name: "Paraguay", colors: { primary: "#d52b1e", secondary: "#ffffff" } },
+        TUN: { name: "Túnez", colors: { primary: "#ffffff", secondary: "#e2011a" } },
+        NED: { name: "P. Bajos", colors: { primary: "#ff4f00", secondary: "#ffffff" } },
+        POR: { name: "Portugal", colors: { primary: "#ff0000", secondary: "#006600" } },
+        EGY: { name: "Egipto", colors: { primary: "#ce1126", secondary: "#ffffff" } },
+        ECU: { name: "Ecuador", colors: { primary: "#ffdd00", secondary: "#034ea2" } },
+        SUI: { name: "Suiza", colors: { primary: "#da291c", secondary: "#ffffff" } },
+        GHA: { name: "Ghana", colors: { primary: "#ffffff", secondary: "#000000" } },
+        KSA: { name: "Arabia S.", colors: { primary: "#006c35", secondary: "#ffffff" } },
+        RSA: { name: "Sudáfrica", colors: { primary: "#007749", secondary: "#ffb81c" } },
+        COD: { name: "R.D. Congo", colors: { primary: "#007fff", secondary: "#ce1021" } },
+        BIH: { name: "Bosnia", colors: { primary: "#002395", secondary: "#ffffff" } },
+        QAT: { name: "Qatar", colors: { primary: "#8a1538", secondary: "#ffffff" } },
+        HAI: { name: "Haití", colors: { primary: "#00205b", secondary: "#d21034" } },
+        SCO: { name: "Escocia", colors: { primary: "#004B84", secondary: "#ffffff" } },
+        AUS: { name: "Australia", colors: { primary: "#ffcd00", secondary: "#008751" } },
+        CZE: { name: "Chequia", colors: { primary: "#d7141a", secondary: "#11457e" } },
+        CUW: { name: "Curazao", colors: { primary: "#002b7f", secondary: "#f9e814" } },
+        CIV: { name: "C. Marfil", colors: { primary: "#ff8200", secondary: "#ffffff" } },
+        IRN: { name: "Irán", colors: { primary: "#ffffff", secondary: "#da0000" } },
+        NZL: { name: "N. Zelanda", colors: { primary: "#ffffff", secondary: "#000000" } },
+        CPV: { name: "Cabo Verde", colors: { primary: "#003893", secondary: "#cf2027" } },
+        IRQ: { name: "Irak", colors: { primary: "#007a3d", secondary: "#ffffff" } },
+        NOR: { name: "Noruega", colors: { primary: "#ef2b2d", secondary: "#002868" } },
+        ALG: { name: "Argelia", colors: { primary: "#ffffff", secondary: "#006233" } },
+        AUT: { name: "Austria", colors: { primary: "#ed2939", secondary: "#ffffff" } },
+        JOR: { name: "Jordania", colors: { primary: "#ce1126", secondary: "#ffffff" } },
+        TUR: { name: "Turquía", colors: { primary: "#e30a17", secondary: "#ffffff" } },
+        UZB: { name: "Uzbekistán", colors: { primary: "#009eb6", secondary: "#ffffff" } },
+        PAN: { name: "Panamá", colors: { primary: "#da291c", secondary: "#ffffff" } }
     },
     // Definición oficial de los 12 grupos de 4 selecciones (48 equipos en total)
     GROUPS: {
-        GROUP_A: ["MEX", "VEN", "CAN", "GHA"],
-        GROUP_B: ["FRA", "SEN", "JPN", "ECU"],
-        GROUP_C: ["USA", "COL", "BEL", "KOR"],
-        GROUP_D: ["ARG", "SUI", "CRO", "MAR"],
-        GROUP_E: ["BRA", "GER", "SWE", "CMR"],
-        GROUP_F: ["ESP", "ENG", "PAR", "TUN"],
-        GROUP_G: ["URU", "NED", "POR", "EGY"],
-        GROUP_H: ["ITA", "NGA", "POL", "KSA"],
-        GROUP_I: ["ARG", "JPN", "ECU", "SEN"],
-        GROUP_J: ["BRA", "FRA", "CRO", "TUN"],
-        GROUP_K: ["ENG", "MEX", "COL", "BEL"],
-        GROUP_L: ["USA", "VEN", "FRA", "NED"]
+        GROUP_A: ["MEX", "RSA", "KOR", "COD"],
+        GROUP_B: ["CAN", "BIH", "QAT", "SUI"],
+        GROUP_C: ["BRA", "MAR", "HAI", "SCO"],
+        GROUP_D: ["USA", "PAR", "AUS", "CZE"],
+        GROUP_E: ["GER", "CUW", "CIV", "ECU"],
+        GROUP_F: ["NED", "JPN", "SWE", "TUN"],
+        GROUP_G: ["BEL", "EGY", "IRN", "NZL"],
+        GROUP_H: ["ESP", "CPV", "KSA", "URU"],
+        GROUP_I: ["FRA", "SEN", "IRQ", "NOR"],
+        GROUP_J: ["ARG", "ALG", "AUT", "JOR"],
+        GROUP_K: ["POR", "TUR", "UZB", "COL"],
+        GROUP_L: ["ENG", "CRO", "GHA", "PAN"]
     }
 };
 
@@ -1099,36 +1116,6 @@ function startAutoSync() {
 
 // ================= ASISTENTE DE AUTOPREDICCIÓN RÁPIDA DE GRUPOS =================
 
-function autoPredictAllGroups() {
-    if (!state.currentUser) return;
-    
-    state.matches.forEach(match => {
-        // Solo autocompletar fase de grupos no concluidos
-        if (match.stage.startsWith('GROUP_')) {
-            const r = Math.random();
-            let h = 1, a = 0;
-            if (r < 0.3) { h = 2; a = 1; }
-            else if (r < 0.55) { h = 1; a = 1; }
-            else if (r < 0.75) { h = 0; a = 0; }
-            else if (r < 0.9) { h = 0; a = 2; }
-            else { h = 3; a = 1; }
-            
-            state.currentUser.predictions[match.id] = { homeScore: h, awayScore: a, saved: true };
-        }
-    });
-    
-    saveDatabase();
-    
-    // Actualizar barras de progreso y vistas
-    updateGroupProgressBar();
-    renderMatches();
-    
-    // Chequear si se desbloqueó eliminatoria
-    checkBracketUnlockState();
-    
-    showToast("Autopredicción de Grupos Lista!");
-    Sound.playFanfare();
-}
 
 function updateGroupProgressBar() {
     if (!state.currentUser) return;
@@ -1286,42 +1273,23 @@ function renderBracketRound() {
         });
     });
     
-    // Si la ronda es la Final, mostrar las predicciones de campeonato al final
+    // Mostrar el panel de premios si la fase es "premios", sino ocultarlo
     const rewardsPanel = document.getElementById('championship-rewards-panel');
-    if (state.bracketRound === 'r2') {
+    const deckPanel = document.getElementById('bracket-round-deck');
+    
+    if (state.bracketRound === 'premios') {
         rewardsPanel.classList.remove('hidden-panel');
-        populateSpecialPredictionsForm(r32Pairings);
+        deckPanel.style.display = 'none';
+        populateSpecialPredictionsForm();
     } else {
         rewardsPanel.classList.add('hidden-panel');
+        deckPanel.style.display = '';
     }
 }
 
-// Rellenar los dropdowns del formulario de campeonato con todos los clasificados del bracket
-function populateSpecialPredictionsForm(r32Pairings) {
-    const f1 = document.getElementById('predict-finalist-1');
-    const f2 = document.getElementById('predict-finalist-2');
-    const champ = document.getElementById('predict-champion');
-    
-    // Obtener los 32 equipos que clasificaron
-    const teams = [...new Set(r32Pairings.flatMap(p => [p.home, p.away]))];
-    
-    const makeOptions = (selectEl, selectedVal) => {
-        selectEl.innerHTML = '<option value="">-- Seleccionar Selección --</option>';
-        teams.forEach(tCode => {
-            const name = CONFIG.COUNTRIES[tCode]?.name || tCode;
-            const opt = document.createElement('option');
-            opt.value = tCode;
-            opt.innerText = name;
-            if (tCode === selectedVal) opt.selected = true;
-            selectEl.appendChild(opt);
-        });
-    };
-    
-    const spec = state.currentUser.specialPredictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" };
-    
-    makeOptions(f1, spec.finalist1);
-    makeOptions(f2, spec.finalist2);
-    makeOptions(champ, spec.champion);
+// Rellenar los dropdowns del formulario de campeonato
+function populateSpecialPredictionsForm() {
+    const spec = state.currentUser.specialPredictions || { scorer: "", assister: "" };
     
     // Cargar goleador y asistidor
     document.getElementById('predict-scorer').value = spec.scorer || "";
@@ -1405,26 +1373,23 @@ function setupNavigation() {
     });
     
     // Autopredicción
-    document.getElementById('btn-auto-predict-groups').addEventListener('click', autoPredictAllGroups);
-    document.getElementById('btn-bracket-unlock-shortcut').addEventListener('click', autoPredictAllGroups);
+
     
     // Guardar apuestas especiales de campeonato
     document.getElementById('special-predictions-form').addEventListener('submit', (e) => {
         e.preventDefault();
         
-        const f1 = document.getElementById('predict-finalist-1').value;
-        const f2 = document.getElementById('predict-finalist-2').value;
-        const champ = document.getElementById('predict-champion').value;
         const scorer = document.getElementById('predict-scorer').value;
         const assister = document.getElementById('predict-assister').value;
         
-        state.currentUser.specialPredictions = { finalist1: f1, finalist2: f2, champion: champ, scorer, assister };
+        // Preserve other properties just in case, but overwrite scorer and assister
+        state.currentUser.specialPredictions = { ...state.currentUser.specialPredictions, scorer, assister };
         
         calculateAllPoints();
         saveDatabase();
         updateManagerUIStats();
         
-        showToast("Predicciones Especiales Guardadas");
+        showToast("Premios Individuales Guardados");
         Sound.playDisk();
     });
     
@@ -1489,97 +1454,165 @@ function setupNavigation() {
         
         if (!inputVal || !password) return;
         
-        if (state.authMode === "login") {
-            // LOGIN: El usuario ingresa su Nombre de Usuario
-            let userObj = state.users.find(u => u.username && u.username.toLowerCase() === inputVal.toLowerCase() && !u.isCPU);
-            
-            if (!userObj) {
-                showToast("Mánager no encontrado. Regístrate primero.");
-                Sound.playError();
-                return;
-            }
-            if (userObj.password !== password) {
-                showToast("Contraseña incorrecta");
-                Sound.playError();
-                return;
-            }
-            
-            state.currentUser = userObj;
-            if (!state.currentUser.bracketPredictions) state.currentUser.bracketPredictions = {};
-            if (!state.currentUser.specialPredictions) state.currentUser.specialPredictions = { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" };
-            
-            saveDatabase();
-            showToast("Acceso Concedido");
-            Sound.playFanfare();
-            
-            if (!state.currentUser.teamName) {
-                transitionToOnboarding();
-            } else {
-                transitionToDashboard();
-            }
-            
-        } else {
-            // REGISTRO: El usuario ingresa su Nombre de Usuario y Contraseña
-            const usernameInput = inputVal;
-            let userObj = state.users.find(u => u.username && u.username.toLowerCase() === usernameInput.toLowerCase() && !u.isCPU);
-            
-            if (userObj) {
-                showToast("El mánager ya está registrado");
-                Sound.playError();
-                return;
-            }
-            
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
-            
-            userObj = {
-                email: usernameInput, // Establecemos email igual a username para máxima compatibilidad
-                username: usernameInput,
-                password: password,
-                teamName: "",
-                avatar: "",
-                avatarType: "none",
-                predictions: {},
-                bracketPredictions: {},
-                specialPredictions: { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
-                points: 0,
-                exactMatches: 0,
-                outcomeMatches: 0,
-                joinedDate: dateStr
-            };
-            
-            state.users.push(userObj);
-            state.currentUser = userObj;
-            
-            // Si Supabase está activo, registrar el usuario en el servidor en la nube
-            if (supabaseDb) {
-                try {
-                    const { error } = await supabaseDb.from('users').insert({
-                        email: userObj.email,
-                        username: userObj.username,
-                        password: userObj.password,
-                        team_name: userObj.teamName,
-                        avatar: String(userObj.avatar),
-                        avatar_type: userObj.avatarType,
-                        predictions: userObj.predictions,
-                        bracket_predictions: userObj.bracketPredictions,
-                        special_predictions: userObj.specialPredictions,
-                        points: userObj.points,
-                        exact_matches: userObj.exactMatches,
-                        outcome_matches: userObj.outcomeMatches,
-                        joined_date: userObj.joinedDate,
-                        is_cpu: false
-                    });
-                    if (error) console.error("Error registrando usuario en Supabase:", error);
-                } catch (e) {
-                    console.error("Fallo al insertar en Supabase:", e);
+        // Bloquear UI mientras carga (opcional, para feedback de red)
+        const submitBtn = document.getElementById('btn-submit-auth');
+        const originalBtnText = document.getElementById('submit-auth-text').innerText;
+        document.getElementById('submit-auth-text').innerText = "PROCESANDO...";
+        submitBtn.disabled = true;
+        
+        try {
+            if (state.authMode === "login") {
+                // LOGIN: Verificar directamente contra Supabase si está disponible
+                let userObj = null;
+                
+                if (supabaseDb) {
+                    try {
+                        const { data, error } = await supabaseDb
+                            .from('users')
+                            .select('*')
+                            .ilike('username', inputVal)
+                            .eq('is_cpu', false)
+                            .maybeSingle();
+                            
+                        if (data) {
+                            userObj = {
+                                email: data.email,
+                                username: data.username,
+                                password: data.password,
+                                teamName: data.team_name || "",
+                                avatar: isNaN(Number(data.avatar)) ? data.avatar : Number(data.avatar),
+                                avatarType: data.avatar_type || "none",
+                                predictions: data.predictions || {},
+                                bracketPredictions: data.bracket_predictions || {},
+                                specialPredictions: data.special_predictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
+                                points: data.points || 0,
+                                exactMatches: data.exact_matches || 0,
+                                outcomeMatches: data.outcome_matches || 0,
+                                joinedDate: data.joined_date || "2026/05/28",
+                                isCPU: false
+                            };
+                        }
+                    } catch (e) {
+                        console.error("Fallo al contactar Supabase para login:", e);
+                    }
+                } else {
+                    // Fallback local
+                    userObj = state.users.find(u => u.username && u.username.toLowerCase() === inputVal.toLowerCase() && !u.isCPU);
                 }
+                
+                // Mensaje genérico para no filtrar si el usuario existe
+                if (!userObj || userObj.password !== password) {
+                    showToast("Nombre o contraseña incorrectos");
+                    Sound.playError();
+                    return;
+                }
+                
+                state.currentUser = userObj;
+                if (!state.currentUser.bracketPredictions) state.currentUser.bracketPredictions = {};
+                if (!state.currentUser.specialPredictions) state.currentUser.specialPredictions = { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" };
+                
+                saveDatabase();
+                showToast("Acceso Concedido");
+                Sound.playFanfare();
+                
+                if (!state.currentUser.teamName) {
+                    transitionToOnboarding();
+                } else {
+                    transitionToDashboard();
+                }
+                
+            } else {
+                // REGISTRO
+                const usernameInput = inputVal;
+                let userExists = false;
+                
+                if (supabaseDb) {
+                    try {
+                        const { data } = await supabaseDb
+                            .from('users')
+                            .select('username')
+                            .ilike('username', usernameInput)
+                            .maybeSingle();
+                        if (data) userExists = true;
+                    } catch (e) {
+                        console.error("Fallo al verificar usuario en Supabase:", e);
+                    }
+                } else {
+                    userExists = !!state.users.find(u => u.username && u.username.toLowerCase() === usernameInput.toLowerCase() && !u.isCPU);
+                }
+                
+                if (userExists) {
+                    showToast("El mánager ya está registrado");
+                    Sound.playError();
+                    return;
+                }
+                
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+                
+                let userObj = {
+                    email: usernameInput, // Establecemos email igual a username
+                    username: usernameInput,
+                    password: password,
+                    teamName: "",
+                    avatar: "",
+                    avatarType: "none",
+                    predictions: {},
+                    bracketPredictions: {},
+                    specialPredictions: { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
+                    points: 0,
+                    exactMatches: 0,
+                    outcomeMatches: 0,
+                    joinedDate: dateStr,
+                    isCPU: false
+                };
+                
+                // Si Supabase está activo, registrar el usuario en el servidor en la nube ANTES de proceder
+                if (supabaseDb) {
+                    try {
+                        const { error } = await supabaseDb.from('users').insert({
+                            email: userObj.email,
+                            username: userObj.username,
+                            password: userObj.password,
+                            team_name: userObj.teamName,
+                            avatar: String(userObj.avatar),
+                            avatar_type: userObj.avatarType,
+                            predictions: userObj.predictions,
+                            bracket_predictions: userObj.bracketPredictions,
+                            special_predictions: userObj.specialPredictions,
+                            points: userObj.points,
+                            exact_matches: userObj.exactMatches,
+                            outcome_matches: userObj.outcomeMatches,
+                            joined_date: userObj.joinedDate,
+                            is_cpu: false
+                        });
+                        
+                        if (error) {
+                            console.error("Error registrando usuario en Supabase:", error);
+                            showToast("Error en el servidor al registrar cuenta");
+                            Sound.playError();
+                            return; // No avanzar si falla la DB real
+                        }
+                    } catch (e) {
+                        console.error("Fallo al insertar en Supabase:", e);
+                        showToast("Error de conexión al registrar cuenta");
+                        Sound.playError();
+                        return;
+                    }
+                }
+                
+                state.users.push(userObj);
+                state.currentUser = userObj;
+                
+                saveDatabase();
+                showToast("Cuenta Creada!");
+                Sound.playFanfare();
+                transitionToOnboarding();
             }
-            
-            saveDatabase();
-            showToast("Cuenta Creada!");
-            Sound.playFanfare();
-            transitionToOnboarding();
+        } finally {
+            // Restaurar botón
+            document.getElementById('submit-auth-text').innerText = originalBtnText;
+            submitBtn.disabled = false;
         }
     });
     

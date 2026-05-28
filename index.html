@@ -247,7 +247,7 @@
                             </div>
                         </div>
                         <div class="quick-status-legend" style="gap: 16px;">
-                            <button id="btn-auto-predict-groups" class="retro-btn small-btn active-state">⚡ AUTOPREDICCIÓN RÁPIDA DE GRUPOS</button>
+
                             <div class="legend-item"><span class="disk-indicator saved">💾</span> Guardado</div>
                             <div class="legend-item"><span class="disk-indicator pending">💾</span> Pendiente</div>
                         </div>
@@ -272,7 +272,7 @@
                         <span style="font-size: 64px;">🔒</span>
                         <h2 style="font-family: var(--font-pixel-heading); font-size: 11px; color: var(--yellow);">FASE ELIMINATORIA BLOQUEADA</h2>
                         <p style="font-size: 13px; font-weight: 500; max-width: 500px; line-height: 1.5;">Debes pronosticar los **72 partidos de la Fase de Grupos** para calcular las tablas de posiciones oficiales, los 8 mejores terceros clasificados y compilar tu árbol de cruces eliminatorios hipotéticos.</p>
-                        <button id="btn-bracket-unlock-shortcut" class="retro-btn margin-top">⚡ AUTOPREDICIR GRUPOS Y DESBLOQUEAR AHORA</button>
+
                     </div>
 
                     <!-- Contenedor del Bracket Activo -->
@@ -283,7 +283,8 @@
                             <button class="sub-tab-btn" data-round="r16">8AVOS DE FINAL (16)</button>
                             <button class="sub-tab-btn" data-round="r8">CUARTOS (8)</button>
                             <button class="sub-tab-btn" data-round="r4">SEMIS (4)</button>
-                            <button class="sub-tab-btn" data-round="r2">FINAL & PREMIOS 🏆</button>
+                            <button class="sub-tab-btn" data-round="r2">FINAL 🏆</button>
+                            <button class="sub-tab-btn" data-round="premios">PREMIOS EXTRA 🎁</button>
                         </div>
 
                         <!-- Grilla de partidos de la ronda seleccionada -->
@@ -291,41 +292,21 @@
                             <!-- Generado dinámicamente con JS -->
                         </div>
 
-                        <!-- SECCIÓN ESPECIAL: PREMIOS DE CAMPEONATO (Solo visible en la ronda Final del bracket) -->
+                        <!-- SECCIÓN ESPECIAL: PREMIOS DE CAMPEONATO -->
                         <div id="championship-rewards-panel" class="retro-window margin-top hidden-panel">
                             <div class="window-title-bar">
                                 <span class="window-title-text"><span class="icon-trophy">🏆</span> PREDICCIONES ESPECIALES DE CAMPEONATO</span>
                             </div>
                             <div class="window-content">
                                 <div class="admin-explanation retro-panel" style="margin-bottom: 16px; font-size: 12px;">
-                                    <p>¡Registra tus apuestas finales de campeonato para el Mundial 2026! Recibirás jugosos puntos de bono al finalizar la copa.</p>
+                                    <p>¡Registra tus apuestas finales de premios individuales para el Mundial 2026! Recibirás puntos extra al finalizar la copa.</p>
                                     <ul style="margin-left: 18px; margin-top: 6px; font-size: 11px;">
-                                        <li>👥 <strong class="text-cyan">Acertar 2 Finalistas correctos:</strong> <span class="text-cyan">+20 PUNTOS</span></li>
-                                        <li>🏆 <strong class="text-yellow">Acertar Campeón del Mundo:</strong> <span class="text-yellow">+35 PUNTOS</span></li>
                                         <li>👟 <strong class="text-green">Acertar Máximo Goleador (Bota de Oro):</strong> <span class="text-green">+30 PUNTOS</span></li>
                                         <li>🎯 <strong class="text-green">Acertar Máximo Asistidor:</strong> <span class="text-green">+30 PUNTOS</span></li>
                                     </ul>
                                 </div>
 
                                 <form id="special-predictions-form" class="retro-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-                                    <div class="form-group">
-                                        <label for="predict-finalist-1">SELECCIONAR FINALISTA A:</label>
-                                        <select id="predict-finalist-1" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
-                                            <!-- Cargado con JS -->
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="predict-finalist-2">SELECCIONAR FINALISTA B:</label>
-                                        <select id="predict-finalist-2" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
-                                            <!-- Cargado con JS -->
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="predict-champion">SELECCIONAR CAMPEÓN DEL MUNDO:</label>
-                                        <select id="predict-champion" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600; color: var(--win-blue);">
-                                            <!-- Cargado con JS -->
-                                        </select>
-                                    </div>
                                     <div class="form-group">
                                         <label for="predict-scorer">👟 MÁXIMO GOLEADOR (BOTA DE ORO):</label>
                                         <select id="predict-scorer" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
