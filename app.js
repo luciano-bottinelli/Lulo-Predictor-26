@@ -183,28 +183,7 @@ const Sound = {
         }
     },
     
-    playClick() {
-        if (!state.soundEnabled) return;
-        this.init();
-        if (!audioCtx) return;
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
-        
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
-    },
-    
+    playClick() { return; },
     playBloop() {
         if (!state.soundEnabled) return;
         this.init();
@@ -227,27 +206,8 @@ const Sound = {
         osc.stop(audioCtx.currentTime + 0.08);
     },
 
-    playBeep() {
-        if (!state.soundEnabled) return;
-        this.init();
-        if (!audioCtx) return;
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1100, audioCtx.currentTime);
-        
-        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.04);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.04);
-    },
-    
+    playBeep() { return; },
+
     playVictory() {
         if (!state.soundEnabled) return;
         this.init();
@@ -301,61 +261,9 @@ const Sound = {
         }
     },
     
-    playFanfare() {
-        if (!state.soundEnabled) return;
-        this.init();
-        if (!audioCtx) return;
-        
-        const now = audioCtx.currentTime;
-        const notes = [
-            { note: 523.25, duration: 0.1 },  // C5
-            { note: 659.25, duration: 0.1 },  // E5
-            { note: 783.99, duration: 0.1 },  // G5
-            { note: 1046.50, duration: 0.3 }  // C6
-        ];
-        
-        let start = now;
-        notes.forEach(item => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(item.note, start);
-            
-            gain.gain.setValueAtTime(0.08, start);
-            gain.gain.linearRampToValueAtTime(0, start + item.duration);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start(start);
-            osc.stop(start + item.duration);
-            
-            start += item.duration;
-        });
-    },
+    playFanfare() { return; },
 
-    playError() {
-        if (!state.soundEnabled) return;
-        this.init();
-        if (!audioCtx) return;
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(90, audioCtx.currentTime + 0.15);
-        
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-    }
+    playError() { return; }
 };
 
 // ================= GENERADOR DINÁMICO DE BANDERAS RETRO =================
@@ -2073,7 +1981,6 @@ function setupNavigation() {
         if (!state.activeClan) return;
         navigator.clipboard.writeText(state.activeClan.code).then(() => {
             showToast("Código Copiado!");
-            Sound.playDisk();
         });
     });
     
@@ -2317,7 +2224,9 @@ async function handleCreateClan() {
     const clanName = document.getElementById('new-clan-name').value.trim();
     if (!clanName) { Sound.playError(); return; }
     
-    const code = `LULO-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const customCodeInput = document.getElementById('new-clan-code');
+    const customCode = customCodeInput ? customCodeInput.value.trim().toUpperCase() : '';
+    const code = customCode ? customCode : `LULO-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     
     const newClan = {
         id: 'clan_' + Date.now(),
@@ -2346,6 +2255,7 @@ async function handleCreateClan() {
     }
     
     document.getElementById('new-clan-name').value = '';
+    if (document.getElementById('new-clan-code')) document.getElementById('new-clan-code').value = '';
     document.getElementById('clan-create-panel').classList.add('hidden-panel');
     renderClans();
     showToast("Clan Creado!");
