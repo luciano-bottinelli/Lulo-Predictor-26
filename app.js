@@ -62,13 +62,32 @@ const CONFIG = {
     }
 };
 
+// ================= CONFIGURACIÓN DE BASE DE DATOS SUPABASE =================
+// Si deseas habilitar el juego multijugador online en la nube para jugar con amigos y familia (como tu abuelo),
+// crea un proyecto gratuito en https://supabase.com, copia y pega tus claves aquí y ejecuta el script SQL provisto.
+// De lo contrario, deja estos campos en blanco y la aplicación funcionará perfectamente en modo local (localStorage).
+const DATABASE_CONFIG = {
+    SUPABASE_URL: "",       // Pegar tu Supabase URL aquí (ej: "https://xxxxxx.supabase.co")
+    SUPABASE_ANON_KEY: ""   // Pegar tu Supabase Anon Key aquí
+};
+
+let supabase = null;
+if (DATABASE_CONFIG.SUPABASE_URL && DATABASE_CONFIG.SUPABASE_ANON_KEY) {
+    try {
+        supabase = window.supabase.createClient(DATABASE_CONFIG.SUPABASE_URL, DATABASE_CONFIG.SUPABASE_ANON_KEY);
+        console.log("Supabase Cloud Sync Engine initialized successfully!");
+    } catch (e) {
+        console.error("Error al iniciar Supabase client:", e);
+    }
+}
+
 // Mánagers Simulados (CPU) que competirán con el usuario
 const CPU_PLAYERS = [
-    { email: "bilardo@cyber96.com", username: "Bilardo Master", teamName: "Narigón F.C.", avatar: 0, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
-    { email: "basile@coco90.com", username: "Basile Coco", teamName: "La Voz F.C.", avatar: 2, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
-    { email: "caruso@humo.com", username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: 3, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
-    { email: "tronco@futbol.com", username: "El Tronco", teamName: "Troncos Unidos", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
-    { email: "gold@predictor.com", username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
+    { username: "Bilardo Master", teamName: "Narigón F.C.", avatar: 0, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
+    { username: "Basile Coco", teamName: "La Voz F.C.", avatar: 2, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
+    { username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: 3, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
+    { username: "El Tronco", teamName: "Troncos Unidos", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
+    { username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
 ];
 
 // Estado global de la aplicación
@@ -390,11 +409,19 @@ function createCircularFlagHTML(countryCode) {
 
 // ================= GESTIÓN DE LA BASE DE DATOS LOCAL Y MOTOR DE JUEGO =================
 
+// ================= GESTIÓN DE LA BASE DE DATOS LOCAL Y MOTOR DE JUEGO =================
+
 function loadDatabase() {
-    // 1. Partidos Fase de Grupos
+    // 1. Partidos Fase de Grupos (con protección try-catch)
     const storedMatches = localStorage.getItem('predictor_lulo_matches');
     if (storedMatches) {
-        state.matches = JSON.parse(storedMatches);
+        try {
+            state.matches = JSON.parse(storedMatches);
+        } catch (e) {
+            console.error("Error parsing predictor_lulo_matches, generating default ones...", e);
+            state.matches = generateGroupStageMatches();
+            localStorage.setItem('predictor_lulo_matches', JSON.stringify(state.matches));
+        }
     } else {
         state.matches = generateGroupStageMatches();
         localStorage.setItem('predictor_lulo_matches', JSON.stringify(state.matches));
@@ -403,7 +430,13 @@ function loadDatabase() {
     // 2. Usuarios
     const storedUsers = localStorage.getItem('predictor_lulo_users');
     if (storedUsers) {
-        state.users = JSON.parse(storedUsers);
+        try {
+            state.users = JSON.parse(storedUsers);
+        } catch (e) {
+            console.error("Error parsing predictor_lulo_users, restoring default CPU players...", e);
+            state.users = JSON.parse(JSON.stringify(CPU_PLAYERS));
+            localStorage.setItem('predictor_lulo_users', JSON.stringify(state.users));
+        }
     } else {
         state.users = JSON.parse(JSON.stringify(CPU_PLAYERS));
         localStorage.setItem('predictor_lulo_users', JSON.stringify(state.users));
@@ -412,7 +445,13 @@ function loadDatabase() {
     // 3. Clanes
     const storedClans = localStorage.getItem('predictor_lulo_clans');
     if (storedClans) {
-        state.clans = JSON.parse(storedClans);
+        try {
+            state.clans = JSON.parse(storedClans);
+        } catch (e) {
+            console.error("Error parsing predictor_lulo_clans, resetting to empty...", e);
+            state.clans = [];
+            localStorage.setItem('predictor_lulo_clans', JSON.stringify(state.clans));
+        }
     } else {
         state.clans = [];
         localStorage.setItem('predictor_lulo_clans', JSON.stringify(state.clans));
@@ -425,10 +464,10 @@ function loadDatabase() {
         document.getElementById('api-token-input').value = storedApiToken;
     }
     
-    // 5. Sesión activa
-    const activeSessionEmail = localStorage.getItem('predictor_lulo_session');
-    if (activeSessionEmail) {
-        state.currentUser = state.users.find(u => u.email === activeSessionEmail && !u.isCPU);
+    // 5. Sesión activa (Cambio de email a username)
+    const activeSessionUsername = localStorage.getItem('predictor_lulo_session');
+    if (activeSessionUsername) {
+        state.currentUser = state.users.find(u => u.username === activeSessionUsername && !u.isCPU);
         
         // Inicializar estructura de predicciones avanzadas si no existen
         if (state.currentUser) {
@@ -448,18 +487,172 @@ function loadDatabase() {
             if (!u.specialPredictions) u.specialPredictions = { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" };
         }
     });
+
+    // Iniciar sincronización con la nube de forma asíncrona si Supabase está configurado
+    if (supabase) {
+        syncWithSupabase();
+    }
 }
 
-function saveDatabase() {
+function saveDatabaseLocally() {
     localStorage.setItem('predictor_lulo_matches', JSON.stringify(state.matches));
     localStorage.setItem('predictor_lulo_users', JSON.stringify(state.users));
     localStorage.setItem('predictor_lulo_clans', JSON.stringify(state.clans));
     localStorage.setItem('predictor_lulo_api_token', state.apiToken);
     
     if (state.currentUser) {
-        localStorage.setItem('predictor_lulo_session', state.currentUser.email);
+        localStorage.setItem('predictor_lulo_session', state.currentUser.username);
     } else {
         localStorage.removeItem('predictor_lulo_session');
+    }
+}
+
+function saveDatabase() {
+    saveDatabaseLocally();
+    
+    // Guardar cambios de predicciones en la nube asincrónicamente si Supabase está activo
+    if (supabase && state.currentUser) {
+        supabase.from('users').update({
+            predictions: state.currentUser.predictions,
+            bracket_predictions: state.currentUser.bracketPredictions,
+            special_predictions: state.currentUser.specialPredictions,
+            points: state.currentUser.points,
+            exact_matches: state.currentUser.exactMatches,
+            outcome_matches: state.currentUser.outcomeMatches,
+            team_name: state.currentUser.teamName,
+            avatar: String(state.currentUser.avatar),
+            avatar_type: state.currentUser.avatarType
+        }).eq('username', state.currentUser.username)
+        .then(({ error }) => {
+            if (error) console.error("Error al guardar predicciones del usuario en Supabase:", error);
+            else console.log("Datos de usuario guardados en la nube asincrónicamente.");
+        });
+    }
+}
+
+// ================= MOTOR DE SINCRONIZACIÓN SUPABASE CLOUD =================
+
+async function syncWithSupabase() {
+    if (!supabase) return;
+    try {
+        console.log("Comenzando sincronización con Supabase Cloud...");
+        
+        // 1. Obtener partidos oficiales de la nube
+        const { data: cloudMatches, error: matchesErr } = await supabase
+            .from('matches')
+            .select('*');
+            
+        if (!matchesErr && cloudMatches && cloudMatches.length > 0) {
+            console.log(`Sincronizados ${cloudMatches.length} partidos oficiales desde la nube.`);
+            cloudMatches.forEach(cm => {
+                const localMatch = state.matches.find(lm => lm.id === cm.id);
+                if (localMatch) {
+                    localMatch.homeScore = cm.home_score;
+                    localMatch.awayScore = cm.away_score;
+                    localMatch.played = cm.played;
+                }
+            });
+        }
+        
+        // 2. Obtener usuarios (mánagers) de la nube
+        const { data: cloudUsers, error: usersErr } = await supabase
+            .from('users')
+            .select('*');
+            
+        if (!usersErr && cloudUsers && cloudUsers.length > 0) {
+            console.log(`Sincronizados ${cloudUsers.length} mánagers desde la nube.`);
+            
+            const newUsersList = [];
+            
+            // Cargar usuarios de la nube
+            cloudUsers.forEach(cu => {
+                const userObj = {
+                    username: cu.username,
+                    password: cu.password,
+                    teamName: cu.team_name || "",
+                    avatar: isNaN(Number(cu.avatar)) ? cu.avatar : Number(cu.avatar),
+                    avatarType: cu.avatar_type || "predefined",
+                    predictions: cu.predictions || {},
+                    bracketPredictions: cu.bracket_predictions || {},
+                    specialPredictions: cu.special_predictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
+                    points: cu.points || 0,
+                    exactMatches: cu.exact_matches || 0,
+                    outcomeMatches: cu.outcome_matches || 0,
+                    joinedDate: cu.joined_date || "2026/05/28",
+                    isCPU: cu.is_cpu || false
+                };
+                newUsersList.push(userObj);
+            });
+            
+            // Si falta alguna CPU por defecto, la agregamos
+            CPU_PLAYERS.forEach(cpu => {
+                if (!newUsersList.some(u => u.username === cpu.username)) {
+                    newUsersList.push(JSON.parse(JSON.stringify(cpu)));
+                }
+            });
+            
+            state.users = newUsersList;
+        }
+        
+        // 3. Obtener clanes de la nube
+        const { data: cloudClans, error: clansErr } = await supabase
+            .from('clans')
+            .select('*');
+            
+        if (!clansErr && cloudClans && cloudClans.length > 0) {
+            console.log(`Sincronizados ${cloudClans.length} clanes desde la nube.`);
+            state.clans = cloudClans.map(cc => ({
+                id: cc.id,
+                name: cc.name,
+                code: cc.code,
+                creator: cc.creator,
+                members: Array.isArray(cc.members) ? cc.members : JSON.parse(cc.members || "[]")
+            }));
+        }
+        
+        // Recalcular puntos con los marcadores oficiales cargados
+        calculateAllPoints();
+        
+        // Vincular sesión actual
+        const activeSessionUsername = localStorage.getItem('predictor_lulo_session');
+        if (activeSessionUsername) {
+            state.currentUser = state.users.find(u => u.username === activeSessionUsername && !u.isCPU);
+            if (state.currentUser) {
+                if (!state.currentUser.bracketPredictions) state.currentUser.bracketPredictions = {};
+                if (!state.currentUser.specialPredictions) {
+                    state.currentUser.specialPredictions = { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" };
+                }
+            }
+        }
+        
+        // Guardar base de datos local actualizada
+        saveDatabaseLocally();
+        
+        // Re-renderizar pestaña activa
+        const activeTabBtn = document.querySelector('.tab-btn.active');
+        if (activeTabBtn) {
+            const tabId = activeTabBtn.dataset.tab;
+            if (tabId === 'matches-tab') {
+                updateGroupProgressBar();
+                renderMatches();
+            } else if (tabId === 'standings-tab') {
+                const activeSubTabBtn = document.querySelector('.sub-tab-btn.active');
+                if (activeSubTabBtn) {
+                    const subtabId = activeSubTabBtn.dataset.subtab;
+                    if (subtabId === 'global-standings-view') renderStandings();
+                    else if (subtabId === 'clans-standings-view') renderClans();
+                }
+            } else if (tabId === 'profile-tab') {
+                renderProfileStats();
+            } else if (tabId === 'admin-tab') {
+                renderAdminGrid();
+            }
+        }
+        updateManagerUIStats();
+        console.log("¡Sincronización con la nube de Supabase completada!");
+        
+    } catch (err) {
+        console.error("Fallo general en la sincronización con la nube:", err);
     }
 }
 
@@ -1233,15 +1426,16 @@ function setupNavigation() {
     });
 
     // Envío del Formulario de Autenticación
-    document.getElementById('auth-form').addEventListener('submit', (e) => {
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const email = document.getElementById('auth-email').value.trim().toLowerCase();
+        const usernameInput = document.getElementById('auth-username').value.trim();
         const password = document.getElementById('auth-password').value;
         
-        if (!email || !password) return;
+        if (!usernameInput || !password) return;
         
-        let userObj = state.users.find(u => u.email === email && !u.isCPU);
+        // Búsqueda insensible a mayúsculas
+        let userObj = state.users.find(u => u.username && u.username.toLowerCase() === usernameInput.toLowerCase() && !u.isCPU);
         
         if (state.authMode === "login") {
             if (!userObj) {
@@ -1262,11 +1456,17 @@ function setupNavigation() {
             saveDatabase();
             showToast("Acceso Concedido");
             Sound.playFanfare();
-            transitionToDashboard();
+            
+            if (!state.currentUser.teamName) {
+                transitionToOnboarding();
+            } else {
+                transitionToDashboard();
+            }
             
         } else {
+            // REGISTRO
             if (userObj) {
-                showToast("El correo ya está registrado");
+                showToast("El usuario ya está registrado");
                 Sound.playError();
                 return;
             }
@@ -1275,9 +1475,8 @@ function setupNavigation() {
             const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
             
             userObj = {
-                email: email,
+                username: usernameInput,
                 password: password,
-                username: "",
                 teamName: "",
                 avatar: 0,
                 avatarType: "predefined",
@@ -1292,29 +1491,52 @@ function setupNavigation() {
             
             state.users.push(userObj);
             state.currentUser = userObj;
-            saveDatabase();
             
+            // Si Supabase está activo, registrar el usuario en el servidor en la nube
+            if (supabase) {
+                try {
+                    const { error } = await supabase.from('users').insert({
+                        username: userObj.username,
+                        password: userObj.password,
+                        team_name: userObj.teamName,
+                        avatar: String(userObj.avatar),
+                        avatar_type: userObj.avatarType,
+                        predictions: userObj.predictions,
+                        bracket_predictions: userObj.bracketPredictions,
+                        special_predictions: userObj.specialPredictions,
+                        points: userObj.points,
+                        exact_matches: userObj.exactMatches,
+                        outcome_matches: userObj.outcomeMatches,
+                        joined_date: userObj.joinedDate,
+                        is_cpu: false
+                    });
+                    if (error) console.error("Error registrando usuario en Supabase:", error);
+                } catch (e) {
+                    console.error("Fallo al insertar en Supabase:", e);
+                }
+            }
+            
+            saveDatabase();
             showToast("Cuenta Creada!");
             Sound.playFanfare();
             transitionToOnboarding();
         }
     });
     
-    // Autenticación con Google
+    // Autenticación con Google (Simulación Retro)
     document.getElementById('btn-google-auth').addEventListener('click', () => {
         Sound.playClick();
         showToast("Conectando con Google API...");
-        setTimeout(() => {
-            const googleEmail = "manager.google@gmail.com";
-            let userObj = state.users.find(u => u.email === googleEmail && !u.isCPU);
+        setTimeout(async () => {
+            const googleUser = "GoogleManager";
+            let userObj = state.users.find(u => u.username && u.username.toLowerCase() === googleUser.toLowerCase() && !u.isCPU);
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
             
             if (!userObj) {
                 userObj = {
-                    email: googleEmail,
+                    username: googleUser,
                     password: "google_account_token_96",
-                    username: "",
                     teamName: "",
                     avatar: 0,
                     avatarType: "predefined",
@@ -1327,6 +1549,28 @@ function setupNavigation() {
                     joinedDate: dateStr
                 };
                 state.users.push(userObj);
+                
+                if (supabase) {
+                    try {
+                        await supabase.from('users').insert({
+                            username: userObj.username,
+                            password: userObj.password,
+                            team_name: userObj.teamName,
+                            avatar: String(userObj.avatar),
+                            avatar_type: userObj.avatarType,
+                            predictions: userObj.predictions,
+                            bracket_predictions: userObj.bracketPredictions,
+                            special_predictions: userObj.specialPredictions,
+                            points: userObj.points,
+                            exact_matches: userObj.exactMatches,
+                            outcome_matches: userObj.outcomeMatches,
+                            joined_date: userObj.joinedDate,
+                            is_cpu: false
+                        });
+                    } catch (e) {
+                        console.error("Fallo al registrar usuario Google en Supabase:", e);
+                    }
+                }
             }
             
             state.currentUser = userObj;
@@ -1337,7 +1581,7 @@ function setupNavigation() {
             showToast("Google Conectado Exitosamente!");
             Sound.playFanfare();
             
-            if (!userObj.username) transitionToOnboarding();
+            if (!userObj.teamName) transitionToOnboarding();
             else transitionToDashboard();
         }, 1000);
     });
@@ -1364,7 +1608,7 @@ function setupNavigation() {
     document.getElementById('custom-avatar-file').addEventListener('change', handleCustomAvatarUpload);
     
     // Envío del Formulario de Onboarding
-    document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+    document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('onboard-username').value.trim();
         const teamName = document.getElementById('onboard-team-name').value.trim();
@@ -1386,7 +1630,26 @@ function setupNavigation() {
         
         generateCPUPredictions();
         calculateAllPoints();
-        saveDatabase();
+        
+        // Guardar local y remotamente
+        saveDatabaseLocally();
+        
+        if (supabase) {
+            try {
+                await supabase.from('users').update({
+                    username: state.currentUser.username,
+                    team_name: state.currentUser.teamName,
+                    avatar: String(state.currentUser.avatar),
+                    avatar_type: state.currentUser.avatarType,
+                    points: state.currentUser.points,
+                    exact_matches: state.currentUser.exactMatches,
+                    outcome_matches: state.currentUser.outcomeMatches
+                }).eq('username', state.currentUser.username);
+                console.log("Ficha del mánager guardada en Supabase.");
+            } catch (e) {
+                console.error("Fallo al actualizar ficha de mánager en Supabase:", e);
+            }
+        }
         
         showToast("Ficha de Mánager Registrada!");
         Sound.playFanfare();
@@ -1448,7 +1711,7 @@ function setupNavigation() {
     });
     
     // SIMULAR FASE DE GRUPOS EN ADMIN
-    document.getElementById('btn-admin-auto-simulate').addEventListener('click', () => {
+    document.getElementById('btn-admin-auto-simulate').addEventListener('click', async () => {
         state.matches.forEach(match => {
             if (match.played) return;
             const r = Math.random();
@@ -1465,7 +1728,6 @@ function setupNavigation() {
         });
         
         // Simular también la gran final oficial para adjudicación de bonos
-        // Creamos un registro final oficial artificial
         const finalOfficialIndex = state.matches.findIndex(m => m.id === 'FINAL');
         if (finalOfficialIndex === -1) {
             state.matches.push({
@@ -1484,16 +1746,21 @@ function setupNavigation() {
         }
         
         calculateAllPoints();
-        saveDatabase();
+        saveDatabaseLocally();
+        
+        if (supabase) {
+            showToast("Simulando en la nube... Espera.");
+            await pushAdminResultsToSupabase();
+        }
         
         renderAdminGrid();
         updateManagerUIStats();
-        showToast("Grupos Simulados!");
+        showToast("Grupos Simulados y Sincronizados!");
         Sound.playFanfare();
     });
     
     // REINICIAR RESULTADOS
-    document.getElementById('btn-admin-reset-results').addEventListener('click', () => {
+    document.getElementById('btn-admin-reset-results').addEventListener('click', async () => {
         state.matches = generateGroupStageMatches();
         
         // Quitar la final artificial
@@ -1501,13 +1768,81 @@ function setupNavigation() {
         if (finalIdx !== -1) state.matches.splice(finalIdx, 1);
         
         calculateAllPoints();
-        saveDatabase();
+        saveDatabaseLocally();
+        
+        if (supabase) {
+            showToast("Limpiando nube... Espera.");
+            await resetMatchesInSupabase();
+        }
         
         renderAdminGrid();
         updateManagerUIStats();
         showToast("Resultados Oficiales Reiniciados");
         Sound.playError();
     });
+}
+
+// ================= SYNC COMPLEMENTARIO DE ADMINISTRACIÓN =================
+
+async function pushAdminResultsToSupabase() {
+    if (!supabase) return;
+    try {
+        console.log("Subiendo marcadores oficiales del torneo y recalculando puntos en Supabase...");
+        
+        // 1. Sincronizar todos los partidos que se jugaron
+        const playedMatches = state.matches.filter(m => m.played);
+        for (const m of playedMatches) {
+            await supabase.from('matches').upsert({
+                id: isNaN(Number(m.id)) ? 99999 : Number(m.id), // ID numérico para final artificial si aplica
+                home: m.home,
+                away: m.away,
+                stage: m.stage,
+                date: m.date,
+                home_score: m.homeScore,
+                away_score: m.awayScore,
+                played: m.played
+            });
+        }
+        
+        // 2. Actualizar las puntuaciones de todos los usuarios
+        for (const u of state.users) {
+            if (!u.isCPU) {
+                await supabase.from('users').update({
+                    points: u.points,
+                    exact_matches: u.exactMatches,
+                    outcome_matches: u.outcomeMatches
+                }).eq('username', u.username);
+            }
+        }
+        console.log("¡Sincronización de administración en la nube completada!");
+    } catch (e) {
+        console.error("Error al subir cambios de administración a Supabase:", e);
+    }
+}
+
+async function resetMatchesInSupabase() {
+    if (!supabase) return;
+    try {
+        console.log("Limpiando marcadores oficiales en la nube de Supabase...");
+        
+        // Eliminar registros de partidos de la tabla para reiniciar el fixture real en la nube
+        const { error } = await supabase.from('matches').delete().neq('id', 0);
+        if (error) console.error("Error al borrar partidos en Supabase:", error);
+        
+        // Resetear puntos de todos los usuarios a 0
+        for (const u of state.users) {
+            if (!u.isCPU) {
+                await supabase.from('users').update({
+                    points: 0,
+                    exact_matches: 0,
+                    outcome_matches: 0
+                }).eq('username', u.username);
+            }
+        }
+        console.log("¡Limpieza de administración en la nube completada!");
+    } catch (e) {
+        console.error("Error al resetear administración en Supabase:", e);
+    }
 }
 
 function handleCustomAvatarUpload(e) {
@@ -1545,7 +1880,8 @@ function transitionToOnboarding() {
     document.getElementById('onboarding-screen').classList.remove('inactive-screen');
     document.getElementById('onboarding-screen').classList.add('active-screen');
     
-    document.getElementById('onboard-username').value = '';
+    document.getElementById('onboard-username').value = state.currentUser ? state.currentUser.username : '';
+    document.getElementById('onboard-username').readOnly = true; // Hacerlo solo lectura para consistencia con el login
     document.getElementById('onboard-team-name').value = '';
     document.getElementById('btn-source-predefined').click();
 }
@@ -1567,7 +1903,7 @@ function transitionToDashboard() {
 function renderClans() {
     const clansList = document.getElementById('clans-list-container');
     clansList.innerHTML = '';
-    const myClans = state.clans.filter(clan => clan.members.includes(state.currentUser.email));
+    const myClans = state.clans.filter(clan => clan.members.includes(state.currentUser.username));
     
     if (myClans.length === 0) {
         clansList.innerHTML = `<p class="text-center" style="font-size: 11px; padding: 12px; color: var(--win-dark-gray); font-weight: bold;">NO ESTÁS EN NINGÚN CLAN</p>`;
@@ -1609,12 +1945,12 @@ function renderActiveClanLeaderboard() {
     const tbody = document.getElementById('clan-standings-table-body');
     tbody.innerHTML = '';
     
-    const clanUsers = state.users.filter(u => state.activeClan.members.includes(u.email));
+    const clanUsers = state.users.filter(u => state.activeClan.members.includes(u.username));
     const sorted = [...clanUsers].sort((a,b) => b.points - a.points || b.exactMatches - a.exactMatches);
     
     sorted.forEach((user, index) => {
         const tr = document.createElement('tr');
-        if (state.currentUser && user.email === state.currentUser.email && !user.isCPU) {
+        if (state.currentUser && user.username === state.currentUser.username && !user.isCPU) {
             tr.className = 'user-row';
         }
         
@@ -1640,24 +1976,38 @@ function renderActiveClanLeaderboard() {
     });
 }
 
-function handleCreateClan() {
+async function handleCreateClan() {
     const clanName = document.getElementById('new-clan-name').value.trim();
     if (!clanName) { Sound.playError(); return; }
     
     const code = `LULO-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const randomCPUs = [CPU_PLAYERS[0].email, CPU_PLAYERS[1].email]; // Integración activa
+    const randomCPUs = [CPU_PLAYERS[0].username, CPU_PLAYERS[1].username]; // Integración activa
     
     const newClan = {
         id: 'clan_' + Date.now(),
         name: clanName,
         code: code,
-        creator: state.currentUser.email,
-        members: [state.currentUser.email, ...randomCPUs]
+        creator: state.currentUser.username,
+        members: [state.currentUser.username, ...randomCPUs]
     };
     
     state.clans.push(newClan);
     state.activeClan = newClan;
-    saveDatabase();
+    saveDatabaseLocally();
+    
+    if (supabase) {
+        try {
+            await supabase.from('clans').insert({
+                id: newClan.id,
+                name: newClan.name,
+                code: newClan.code,
+                creator: newClan.creator,
+                members: newClan.members
+            });
+        } catch (e) {
+            console.error("Error creating clan in Supabase:", e);
+        }
+    }
     
     document.getElementById('new-clan-name').value = '';
     document.getElementById('clan-create-panel').classList.add('hidden-panel');
@@ -1666,21 +2016,31 @@ function handleCreateClan() {
     Sound.playFanfare();
 }
 
-function handleJoinClan() {
+async function handleJoinClan() {
     const code = document.getElementById('join-clan-code').value.trim().toUpperCase();
     if (!code) { Sound.playError(); return; }
     
     const clan = state.clans.find(c => c.code === code);
     if (!clan) { Sound.playError(); showToast("Código de clan inválido"); return; }
     
-    if (clan.members.includes(state.currentUser.email)) {
+    if (clan.members.includes(state.currentUser.username)) {
         showToast("Ya eres miembro de este clan");
         Sound.playError(); return;
     }
     
-    clan.members.push(state.currentUser.email);
+    clan.members.push(state.currentUser.username);
     state.activeClan = clan;
-    saveDatabase();
+    saveDatabaseLocally();
+    
+    if (supabase) {
+        try {
+            await supabase.from('clans').update({
+                members: clan.members
+            }).eq('id', clan.id);
+        } catch (e) {
+            console.error("Error joining clan in Supabase:", e);
+        }
+    }
     
     document.getElementById('join-clan-code').value = '';
     document.getElementById('clan-join-panel').classList.add('hidden-panel');
@@ -1755,7 +2115,7 @@ function renderStandings() {
     const sorted = [...state.users].sort((a, b) => b.points - a.points || b.exactMatches - a.exactMatches);
     sorted.forEach((user, index) => {
         const tr = document.createElement('tr');
-        if (state.currentUser && user.email === state.currentUser.email && !user.isCPU) {
+        if (state.currentUser && user.username === state.currentUser.username && !user.isCPU) {
             tr.className = 'user-row';
         }
         

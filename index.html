@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- Supabase Official client SDK for Cloud synchronization -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 <body class="crt-active">
     <!-- Overlay CRT para efecto monitor de tubo -->
@@ -69,11 +72,11 @@
                         </div>
                     </div>
 
-                    <!-- Formulario de Acceso por Correo y Contraseña -->
+                    <!-- Formulario de Acceso por Usuario y Contraseña -->
                     <form id="auth-form" class="retro-form">
                         <div class="form-group">
-                            <label for="auth-email">CORREO ELECTRÓNICO:</label>
-                            <input type="email" id="auth-email" class="retro-input" required placeholder="correo@ejemplo.com" autocomplete="email">
+                            <label for="auth-username">NOMBRE DE USUARIO:</label>
+                            <input type="text" id="auth-username" class="retro-input" required placeholder="Ej: lucho" autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label for="auth-password">CONTRASEÑA:</label>
