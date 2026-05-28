@@ -672,6 +672,47 @@ async function syncWithSupabase() {
     }
 }
 
+// ================= GENERADOR DE PREDICCIONES CPU =================
+
+function generateCPUPredictions() {
+    state.users.forEach(user => {
+        if (!user.isCPU) return;
+        // Solo generar si no tiene predicciones todavía
+        if (Object.keys(user.predictions).length > 0) return;
+        
+        state.matches.forEach(match => {
+            if (!match.stage.startsWith('GROUP_')) return;
+            
+            let h, a;
+            switch (user.strategy) {
+                case 'defensive':
+                    h = Math.floor(Math.random() * 2);
+                    a = Math.floor(Math.random() * 2);
+                    break;
+                case 'offensive':
+                    h = 1 + Math.floor(Math.random() * 3);
+                    a = Math.floor(Math.random() * 3);
+                    break;
+                case 'draws':
+                    h = Math.floor(Math.random() * 3);
+                    a = h;
+                    break;
+                case 'logical':
+                    h = Math.floor(Math.random() * 3);
+                    a = Math.floor(Math.random() * 3);
+                    break;
+                case 'random':
+                default:
+                    h = Math.floor(Math.random() * 5);
+                    a = Math.floor(Math.random() * 5);
+                    break;
+            }
+            
+            user.predictions[match.id] = { homeScore: h, awayScore: a, saved: true };
+        });
+    });
+}
+
 // ================= MOTOR DE PUNTOS TOTALES (NUEVO SISTEMA) =================
 
 function calculateAllPoints() {
