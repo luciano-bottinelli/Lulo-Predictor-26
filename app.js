@@ -1850,7 +1850,8 @@ function setupNavigation() {
         document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR`;
     }; // Fin de handleLogout
 
-    document.getElementById('btn-logout').addEventListener('click', handleLogout);
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) btnLogout.addEventListener('click', handleLogout);
     const btnConfigLogout = document.getElementById('btn-config-logout');
     if (btnConfigLogout) btnConfigLogout.addEventListener('click', handleLogout);
     
