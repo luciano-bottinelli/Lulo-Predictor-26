@@ -2491,10 +2491,12 @@ function renderMatches() {
         
         if (!isGroupPlayed) {
             saveGroupBtnContainer.innerHTML = `
-                <span class="disk-indicator ${!anyUnsaved ? 'saved' : 'pending'}" style="margin-right: 8px;">💾</span>
-                <button class="retro-btn btn-save-group" data-group-name="${groupName}" style="padding: 12px 32px; font-size: 14px; cursor: pointer;">
-                    ${!anyUnsaved ? 'GRUPO ACTUALIZADO' : 'GUARDAR GRUPO'}
-                </button>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                    <span class="disk-indicator ${!anyUnsaved ? 'saved' : 'pending'}">💾</span>
+                    <button class="retro-btn btn-save-group" data-group-name="${groupName}" style="padding: 12px 32px; font-size: 14px; cursor: pointer;">
+                        ${!anyUnsaved ? 'CAMBIOS GUARDADOS' : 'GUARDAR CAMBIOS'}
+                    </button>
+                </div>
             `;
             groupContainer.appendChild(saveGroupBtnContainer);
         }
@@ -2527,8 +2529,20 @@ function renderMatches() {
             }
             
             pred.saved = false;
-            const indicator = btn.closest('.match-card').querySelector('.disk-indicator');
-            if (indicator) indicator.className = 'disk-indicator pending';
+            
+            // Actualizar el botón de Guardar Grupo correspondiente
+            const matchObj = state.matches.find(m => m.id === matchId);
+            if (matchObj) {
+                const groupBtn = document.querySelector(`.btn-save-group[data-group-name="${matchObj.stage}"]`);
+                if (groupBtn) {
+                    groupBtn.innerText = 'GUARDAR CAMBIOS';
+                    const indicator = groupBtn.previousElementSibling;
+                    if (indicator && indicator.classList.contains('disk-indicator')) {
+                        indicator.className = 'disk-indicator pending';
+                    }
+                }
+            }
+            
             Sound.playBloop();
         });
     });
@@ -2557,7 +2571,7 @@ function renderMatches() {
                 renderMatches();
                 
                 checkBracketUnlockState();
-                showToast("Grupo Guardado");
+                showToast("Cambios Guardados");
                 Sound.playBeep();
             }
         });
