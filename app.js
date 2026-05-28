@@ -1559,24 +1559,7 @@ function setupNavigation() {
     // Autopredicción
 
     
-    // Guardar apuestas especiales de campeonato
-    document.getElementById('special-predictions-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const scorer = document.getElementById('predict-scorer').value;
-        const assister = document.getElementById('predict-assister').value;
-        
-        // Preserve other properties just in case, but overwrite scorer and assister
-        state.currentUser.specialPredictions = { ...state.currentUser.specialPredictions, scorer, assister };
-        
-        calculateAllPoints();
-        saveDatabase();
-        updateManagerUIStats();
-        
-        showToast("Premios Individuales Guardados");
-        Sound.playDisk();
-    });
-    
+    // (El formulario de apuestas especiales fue eliminado)
     // Filtrar partidos
     document.getElementById('match-stage-filter').addEventListener('change', () => {
         Sound.playClick();
