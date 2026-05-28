@@ -1280,6 +1280,45 @@ function renderBracketRound() {
         deck.appendChild(card);
     });
     
+    // Añadir el botón "GUARDAR FASE"
+    const savePhaseContainer = document.createElement('div');
+    savePhaseContainer.style.gridColumn = "1 / -1";
+    savePhaseContainer.style.textAlign = "center";
+    savePhaseContainer.style.marginTop = "16px";
+    
+    const isRoundCompleteCheck = isRoundComplete(roundMatches);
+    savePhaseContainer.innerHTML = `
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+            <span class="disk-indicator ${isRoundCompleteCheck ? 'saved' : 'pending'}">💾</span>
+            <button class="retro-btn btn-save-bracket-phase" style="padding: 12px 32px; font-size: 14px; cursor: pointer;">
+                ${isRoundCompleteCheck ? 'FASE COMPLETADA' : 'GUARDAR FASE'}
+            </button>
+        </div>
+    `;
+    deck.appendChild(savePhaseContainer);
+    
+    // Funcionalidad del botón GUARDAR FASE
+    const btnSavePhase = savePhaseContainer.querySelector('.btn-save-bracket-phase');
+    if (btnSavePhase) {
+        btnSavePhase.addEventListener('click', () => {
+            let savedCount = 0;
+            roundMatches.forEach(m => {
+                if (!state.currentUser.bracketPredictions[m.id]) {
+                    state.currentUser.bracketPredictions[m.id] = { homeScore: 0, awayScore: 0, winner: m.home };
+                    savedCount++;
+                }
+            });
+            
+            if (savedCount > 0 || !isRoundCompleteCheck) {
+                saveDatabase();
+                renderBracketRound();
+                checkBracketUnlockState();
+                showToast("Cambios Guardados");
+                Sound.playBeep();
+            }
+        });
+    }
+    
     // Controles de botones de goles del bracket
     document.querySelectorAll('.btn-brk-score').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2573,6 +2612,26 @@ window.addEventListener('DOMContentLoaded', () => {
             saveDatabase();
             transitionToDashboard();
         }
+    }
+    
+    // Lógica del botón de Volver Arriba
+    const btnScrollTop = document.getElementById('btn-scroll-top');
+    if (btnScrollTop) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                btnScrollTop.style.display = 'block';
+            } else {
+                btnScrollTop.style.display = 'none';
+            }
+        });
+        
+        btnScrollTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            Sound.playClick();
+        });
     }
 });
 
