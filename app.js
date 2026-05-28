@@ -615,8 +615,8 @@ async function syncWithSupabase() {
                     password: cu.password,
                     teamName: cu.team_name || "",
                     avatar: isNaN(Number(cu.avatar)) ? cu.avatar : Number(cu.avatar),
-                    avatarType: cu.avatar_type || "predefined",
-                    predictions: cu.predictions || {},
+                    avatarType: cu.avatar_type || "none",
+                    predictions: {},
                     bracketPredictions: cu.bracket_predictions || {},
                     specialPredictions: cu.special_predictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
                     points: cu.points || 0,
@@ -1098,18 +1098,12 @@ async function syncRealWorldMatches(silent = false) {
         // Recargar vista activa
         const activeTabBtn = document.querySelector('.tab-btn.active');
         if (activeTabBtn) activeTabBtn.click();
-        
-        if (updatedCount > 0 || !silent) {
+        if (updatedCount > 0) {
             showToast(`Sincronizado: ${updatedCount} partidos actualizados`);
-            Sound.playFanfare();
         }
         
     } catch(err) {
         console.error("Fallo al sincronizar con ESPN API: ", err);
-        if (!silent) {
-            showToast("Error de conexión con ESPN Scoreboard API");
-            Sound.playError();
-        }
     }
 }
 
@@ -1491,7 +1485,7 @@ function setupNavigation() {
                                 teamName: data.team_name || "",
                                 avatar: isNaN(Number(data.avatar)) ? data.avatar : Number(data.avatar),
                                 avatarType: data.avatar_type || "none",
-                                predictions: data.predictions || {},
+                                predictions: {}, // Wiped
                                 bracketPredictions: data.bracket_predictions || {},
                                 specialPredictions: data.special_predictions || { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
                                 points: data.points || 0,
@@ -1524,11 +1518,7 @@ function setupNavigation() {
                 showToast("Acceso Concedido");
                 Sound.playFanfare();
                 
-                if (!state.currentUser.teamName) {
-                    transitionToOnboarding();
-                } else {
-                    transitionToDashboard();
-                }
+                transitionToDashboard();
                 
             } else {
                 // REGISTRO
@@ -2238,7 +2228,7 @@ function renderMatches() {
     filteredMatches.forEach(match => {
         const card = document.createElement('div');
         card.className = 'match-card';
-        const pred = state.currentUser.predictions[match.id] || { homeScore: 0, awayScore: 0, saved: false };
+        const pred = state.currentUser.predictions[match.id] || { homeScore: "", awayScore: "", saved: false };
         
         let footerHTML = '';
         if (match.played) {
@@ -2317,6 +2307,10 @@ function renderMatches() {
                 state.currentUser.predictions[matchId] = { homeScore: 0, awayScore: 0, saved: false };
             }
             const pred = state.currentUser.predictions[matchId];
+            
+            // Si estaba vacío, iniciarlo en 0 antes de sumar/restar
+            if (pred.homeScore === "" || pred.homeScore === undefined) pred.homeScore = 0;
+            if (pred.awayScore === "" || pred.awayScore === undefined) pred.awayScore = 0;
             
             if (target === 'home') {
                 pred.homeScore = action === 'inc' ? Math.min(9, pred.homeScore + 1) : Math.max(0, pred.homeScore - 1);
