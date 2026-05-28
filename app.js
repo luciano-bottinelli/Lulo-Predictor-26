@@ -67,8 +67,8 @@ const CONFIG = {
 // crea un proyecto gratuito en https://supabase.com, copia y pega tus claves aquí y ejecuta el script SQL provisto.
 // De lo contrario, deja estos campos en blanco y la aplicación funcionará perfectamente en modo local (localStorage).
 const DATABASE_CONFIG = {
-    SUPABASE_URL: "",       // Pegar tu Supabase URL aquí (ej: "https://xxxxxx.supabase.co")
-    SUPABASE_ANON_KEY: ""   // Pegar tu Supabase Anon Key aquí
+    SUPABASE_URL: "https://zhajrdugcfrbozluikeg.supabase.co",
+    SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYWpyZHVnY2ZyYm96bHVpa2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzQ1NTYsImV4cCI6MjA5NTU1MDU1Nn0.Jkx4ercMgJt21BqZsscLeXl1xylNYiiOl6bxR_oMWi0"
 };
 
 let supabase = null;
