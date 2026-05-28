@@ -104,14 +104,8 @@ if (DATABASE_CONFIG.SUPABASE_URL && DATABASE_CONFIG.SUPABASE_ANON_KEY) {
     }
 }
 
-// Mánagers Simulados (CPU) que competirán con el usuario
-const CPU_PLAYERS = [
-    { email: "bilardo@cyber96.com", username: "Bilardo Master", teamName: "Narigón F.C.", avatar: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
-    { email: "basile@coco90.com", username: "Basile Coco", teamName: "La Voz F.C.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
-    { email: "caruso@humo.com", username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
-    { email: "tronco@futbol.com", username: "El Tronco", teamName: "Troncos Unidos", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
-    { email: "gold@predictor.com", username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
-];
+// Mánagers Simulados (CPU) desactivados a pedido del usuario
+const CPU_PLAYERS = [];
 
 // Estado global de la aplicación
 let state = {
@@ -2323,14 +2317,13 @@ async function handleCreateClan() {
     if (!clanName) { Sound.playError(); return; }
     
     const code = `LULO-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const randomCPUs = [CPU_PLAYERS[0].username, CPU_PLAYERS[1].username]; // Integración activa
     
     const newClan = {
         id: 'clan_' + Date.now(),
         name: clanName,
         code: code,
         creator: state.currentUser.username,
-        members: [state.currentUser.username, ...randomCPUs]
+        members: [state.currentUser.username]
     };
     
     state.clans.push(newClan);
