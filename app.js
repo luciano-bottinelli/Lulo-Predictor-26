@@ -2541,11 +2541,12 @@ function renderMatches() {
             let savedCount = 0;
             
             groupMatches.forEach(m => {
-                const pred = state.currentUser.predictions[m.id];
-                if (pred) {
-                    pred.saved = true;
-                    savedCount++;
+                if (!state.currentUser.predictions[m.id]) {
+                    state.currentUser.predictions[m.id] = { homeScore: 0, awayScore: 0, saved: false };
                 }
+                const pred = state.currentUser.predictions[m.id];
+                pred.saved = true;
+                savedCount++;
             });
             
             if (savedCount > 0) {
