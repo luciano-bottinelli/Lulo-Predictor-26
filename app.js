@@ -74,8 +74,12 @@ const DATABASE_CONFIG = {
 let supabase = null;
 if (DATABASE_CONFIG.SUPABASE_URL && DATABASE_CONFIG.SUPABASE_ANON_KEY) {
     try {
-        supabase = window.supabase.createClient(DATABASE_CONFIG.SUPABASE_URL, DATABASE_CONFIG.SUPABASE_ANON_KEY);
-        console.log("Supabase Cloud Sync Engine initialized successfully!");
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+            supabase = window.supabase.createClient(DATABASE_CONFIG.SUPABASE_URL, DATABASE_CONFIG.SUPABASE_ANON_KEY);
+            console.log("Supabase Cloud Sync Engine initialized successfully!");
+        } else {
+            console.warn("Supabase SDK not loaded yet or blocked.");
+        }
     } catch (e) {
         console.error("Error al iniciar Supabase client:", e);
     }
@@ -1686,7 +1690,7 @@ function setupNavigation() {
         document.getElementById('login-screen').classList.remove('inactive-screen');
         document.getElementById('login-screen').classList.add('active-screen');
         
-        document.getElementById('auth-email').value = '';
+        document.getElementById('auth-username').value = '';
         document.getElementById('auth-password').value = '';
         state.authMode = "login";
         document.getElementById('submit-auth-text').innerText = "INICIAR SESIÓN";
