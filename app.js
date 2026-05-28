@@ -700,12 +700,10 @@ async function syncWithSupabase() {
                 }
             });
             
-            // Si el usuario actual u otros usuarios locales no están en la nube (falló inserción), preservarlos
-            state.users.forEach(localU => {
-                if (!newUsersList.some(u => u.email === localU.email) && !localU.isCPU) {
-                    newUsersList.push(localU);
-                }
-            });
+            // Preservar solo al usuario actual si no está en la nube (falló inserción), descartar el resto
+            if (state.currentUser && !newUsersList.some(u => u.email === state.currentUser.email)) {
+                newUsersList.push(state.currentUser);
+            }
             
             // Si falta alguna CPU por defecto, la agregamos
             CPU_PLAYERS.forEach(cpu => {
