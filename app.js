@@ -71,11 +71,11 @@ const DATABASE_CONFIG = {
     SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYWpyZHVnY2ZyYm96bHVpa2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzQ1NTYsImV4cCI6MjA5NTU1MDU1Nn0.Jkx4ercMgJt21BqZsscLeXl1xylNYiiOl6bxR_oMWi0"
 };
 
-let supabase = null;
+let supabaseDb = null;
 if (DATABASE_CONFIG.SUPABASE_URL && DATABASE_CONFIG.SUPABASE_ANON_KEY) {
     try {
         if (window.supabase && typeof window.supabase.createClient === 'function') {
-            supabase = window.supabase.createClient(DATABASE_CONFIG.SUPABASE_URL, DATABASE_CONFIG.SUPABASE_ANON_KEY);
+            supabaseDb = window.supabase.createClient(DATABASE_CONFIG.SUPABASE_URL, DATABASE_CONFIG.SUPABASE_ANON_KEY);
             console.log("Supabase Cloud Sync Engine initialized successfully!");
         } else {
             console.warn("Supabase SDK not loaded yet or blocked.");
@@ -507,7 +507,7 @@ function loadDatabase() {
     });
 
     // Iniciar sincronización con la nube de forma asíncrona si Supabase está configurado
-    if (supabase) {
+    if (supabaseDb) {
         syncWithSupabase();
     }
 }
@@ -529,8 +529,8 @@ function saveDatabase() {
     saveDatabaseLocally();
     
     // Guardar cambios de predicciones en la nube asincrónicamente si Supabase está activo
-    if (supabase && state.currentUser) {
-        supabase.from('users').update({
+    if (supabaseDb && state.currentUser) {
+        supabaseDb.from('users').update({
             username: state.currentUser.username,
             predictions: state.currentUser.predictions,
             bracket_predictions: state.currentUser.bracketPredictions,
@@ -552,12 +552,12 @@ function saveDatabase() {
 // ================= MOTOR DE SINCRONIZACIÓN SUPABASE CLOUD =================
 
 async function syncWithSupabase() {
-    if (!supabase) return;
+    if (!supabaseDb) return;
     try {
         console.log("Comenzando sincronización con Supabase Cloud...");
         
         // 1. Obtener partidos oficiales de la nube
-        const { data: cloudMatches, error: matchesErr } = await supabase
+        const { data: cloudMatches, error: matchesErr } = await supabaseDb
             .from('matches')
             .select('*');
             
@@ -574,7 +574,7 @@ async function syncWithSupabase() {
         }
         
         // 2. Obtener usuarios (mánagers) de la nube
-        const { data: cloudUsers, error: usersErr } = await supabase
+        const { data: cloudUsers, error: usersErr } = await supabaseDb
             .from('users')
             .select('*');
             
@@ -615,7 +615,7 @@ async function syncWithSupabase() {
         }
         
         // 3. Obtener clanes de la nube
-        const { data: cloudClans, error: clansErr } = await supabase
+        const { data: cloudClans, error: clansErr } = await supabaseDb
             .from('clans')
             .select('*');
             
@@ -1519,9 +1519,9 @@ function setupNavigation() {
             state.currentUser = userObj;
             
             // Si Supabase está activo, registrar el usuario en el servidor en la nube
-            if (supabase) {
+            if (supabaseDb) {
                 try {
-                    const { error } = await supabase.from('users').insert({
+                    const { error } = await supabaseDb.from('users').insert({
                         email: userObj.email,
                         username: userObj.username,
                         password: userObj.password,
@@ -1579,9 +1579,9 @@ function setupNavigation() {
                 };
                 state.users.push(userObj);
                 
-                if (supabase) {
+                if (supabaseDb) {
                     try {
-                        await supabase.from('users').insert({
+                        await supabaseDb.from('users').insert({
                             email: userObj.email,
                             username: userObj.username,
                             password: userObj.password,
@@ -1672,9 +1672,9 @@ function setupNavigation() {
         // Guardar local y remotamente
         saveDatabaseLocally();
         
-        if (supabase) {
+        if (supabaseDb) {
             try {
-                await supabase.from('users').update({
+                await supabaseDb.from('users').update({
                     username: state.currentUser.username,
                     team_name: state.currentUser.teamName,
                     avatar: String(state.currentUser.avatar),
@@ -1787,7 +1787,7 @@ function setupNavigation() {
         calculateAllPoints();
         saveDatabaseLocally();
         
-        if (supabase) {
+        if (supabaseDb) {
             showToast("Simulando en la nube... Espera.");
             await pushAdminResultsToSupabase();
         }
@@ -1809,7 +1809,7 @@ function setupNavigation() {
         calculateAllPoints();
         saveDatabaseLocally();
         
-        if (supabase) {
+        if (supabaseDb) {
             showToast("Limpiando nube... Espera.");
             await resetMatchesInSupabase();
         }
@@ -1824,14 +1824,14 @@ function setupNavigation() {
 // ================= SYNC COMPLEMENTARIO DE ADMINISTRACIÓN =================
 
 async function pushAdminResultsToSupabase() {
-    if (!supabase) return;
+    if (!supabaseDb) return;
     try {
         console.log("Subiendo marcadores oficiales del torneo y recalculando puntos en Supabase...");
         
         // 1. Sincronizar todos los partidos que se jugaron
         const playedMatches = state.matches.filter(m => m.played);
         for (const m of playedMatches) {
-            await supabase.from('matches').upsert({
+            await supabaseDb.from('matches').upsert({
                 id: isNaN(Number(m.id)) ? 99999 : Number(m.id), // ID numérico para final artificial si aplica
                 home: m.home,
                 away: m.away,
@@ -1846,7 +1846,7 @@ async function pushAdminResultsToSupabase() {
         // 2. Actualizar las puntuaciones de todos los usuarios
         for (const u of state.users) {
             if (!u.isCPU) {
-                await supabase.from('users').update({
+                await supabaseDb.from('users').update({
                     points: u.points,
                     exact_matches: u.exactMatches,
                     outcome_matches: u.outcomeMatches
@@ -1860,18 +1860,18 @@ async function pushAdminResultsToSupabase() {
 }
 
 async function resetMatchesInSupabase() {
-    if (!supabase) return;
+    if (!supabaseDb) return;
     try {
         console.log("Limpiando marcadores oficiales en la nube de Supabase...");
         
         // Eliminar registros de partidos de la tabla para reiniciar el fixture real en la nube
-        const { error } = await supabase.from('matches').delete().neq('id', 0);
+        const { error } = await supabaseDb.from('matches').delete().neq('id', 0);
         if (error) console.error("Error al borrar partidos en Supabase:", error);
         
         // Resetear puntos de todos los usuarios a 0
         for (const u of state.users) {
             if (!u.isCPU) {
-                await supabase.from('users').update({
+                await supabaseDb.from('users').update({
                     points: 0,
                     exact_matches: 0,
                     outcome_matches: 0
@@ -2035,9 +2035,9 @@ async function handleCreateClan() {
     state.activeClan = newClan;
     saveDatabaseLocally();
     
-    if (supabase) {
+    if (supabaseDb) {
         try {
-            await supabase.from('clans').insert({
+            await supabaseDb.from('clans').insert({
                 id: newClan.id,
                 name: newClan.name,
                 code: newClan.code,
@@ -2072,9 +2072,9 @@ async function handleJoinClan() {
     state.activeClan = clan;
     saveDatabaseLocally();
     
-    if (supabase) {
+    if (supabaseDb) {
         try {
-            await supabase.from('clans').update({
+            await supabaseDb.from('clans').update({
                 members: clan.members
             }).eq('id', clan.id);
         } catch (e) {
