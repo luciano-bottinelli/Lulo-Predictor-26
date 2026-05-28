@@ -1372,7 +1372,7 @@ function renderBracketRound() {
                     Sound.playVictory();
                     
                     // Guardar el campeón automáticamente según el resultado de la final
-                    const finalMatchPred = state.currentUser.bracketPredictions['M_F'];
+                    const finalMatchPred = state.currentUser.bracketPredictions['M104'];
                     if (finalMatchPred && finalMatchPred.winner) {
                         if (!state.currentUser.specialPredictions) state.currentUser.specialPredictions = {};
                         state.currentUser.specialPredictions.champion = finalMatchPred.winner;
@@ -1472,7 +1472,8 @@ function refreshActiveTab() {
         if (unlocked) renderBracketRound();
     }
     else if (tabId === 'standings-tab') {
-        const subTab = document.querySelector('.sub-tab-btn.active');
+        const standingsTabContent = document.getElementById('standings-tab');
+        const subTab = standingsTabContent ? standingsTabContent.querySelector('.sub-tab-btn.active') : null;
         if (subTab) subTab.click();
         else document.querySelector('[data-subtab="global-standings-view"]')?.click();
     }
@@ -2358,15 +2359,15 @@ function renderProfileStats() {
     let champion = spec.champion;
     
     // Fallback: si no subió las predicciones, pero tiene la final guardada
-    if (!champion && userToView.bracketPredictions && userToView.bracketPredictions['M_F']) {
-        champion = userToView.bracketPredictions['M_F'].winner;
+    if (!champion && userToView.bracketPredictions && userToView.bracketPredictions['M104']) {
+        champion = userToView.bracketPredictions['M104'].winner;
     }
 
     const predsHTML = `
-        <div style="font-size: 14px; margin-bottom: 12px;">👑 Campeón: <strong class="text-yellow">${champion || "No elegido"}</strong></div>
-        <div style="font-size: 14px; margin-bottom: 12px;">👟 Máx. Goleador: <strong class="text-cyan">${spec.scorer || "Próximamente"}</strong></div>
-        <div style="font-size: 14px; margin-bottom: 12px;">🎯 Máx. Asistidor: <strong class="text-green">${spec.assister || "Próximamente"}</strong></div>
-        <div style="font-size: 14px;">⭐ MVP: <strong class="text-yellow">${spec.mvp || "Próximamente"}</strong></div>
+        <div style="font-size: 14px; margin-bottom: 12px; color: #333;">👑 Campeón: <strong style="color: #000;">${champion || "No elegido"}</strong></div>
+        <div style="font-size: 14px; margin-bottom: 12px; color: #333;">👟 Máx. Goleador: <strong style="color: #000;">${spec.scorer || "Próximamente"}</strong></div>
+        <div style="font-size: 14px; margin-bottom: 12px; color: #333;">🎯 Máx. Asistidor: <strong style="color: #000;">${spec.assister || "Próximamente"}</strong></div>
+        <div style="font-size: 14px; color: #333;">⭐ MVP: <strong style="color: #000;">${spec.mvp || "Próximamente"}</strong></div>
     `;
     const predsContainer = document.getElementById('profile-special-preds');
     if (predsContainer) predsContainer.innerHTML = predsHTML;
