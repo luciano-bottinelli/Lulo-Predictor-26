@@ -214,9 +214,7 @@
                 <button class="tab-btn" data-tab="profile-tab">
                     <span class="tab-icon">👤</span> MI HISTORIAL
                 </button>
-                <button class="tab-btn" data-tab="admin-tab" id="tab-admin-btn">
-                    <span class="tab-icon">🔧</span> PANEL ADMIN
-                </button>
+
                 <button id="btn-logout" class="tab-btn logout-btn">
                     <span class="tab-icon">💾</span> SALIR
                 </button>
@@ -577,33 +575,7 @@
                     </div>
                 </section>
 
-                <!-- 5. PESTAÑA: PANEL DE ADMINISTRADOR -->
-                <section id="admin-tab" class="tab-content inactive-tab">
-                    <div class="retro-window">
-                        <div class="window-title-bar">
-                            <span class="window-title-text">🔧 CENTRO DE CÓMPUTO & CONTROL</span>
-                        </div>
-                        <div class="window-content">
-                            <div class="admin-explanation retro-panel">
-                                <p><strong>¡ATENCIÓN MÁNAGER ADMINISTRADOR!</strong> Aquí puedes simular cómo finalizan los partidos de la Fase de Grupos y Eliminatorias del Mundial 2026.</p>
-                                <p class="text-yellow">Al guardar un resultado oficial, se calcularán las puntuaciones de todos los mánagers del ranking global y de los clanes al instante.</p>
-                            </div>
 
-                            <div class="admin-actions-bar margin-top" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button id="btn-admin-auto-simulate" class="retro-btn">Simular Grupos Oficiales Lógicamente</button>
-                                <button id="btn-admin-reset-results" class="retro-btn danger-btn">Reiniciar Resultados Oficiales del Torneo</button>
-                                <button id="btn-sync-api-now" class="retro-btn active-state" style="background-color: var(--yellow); color: var(--black); font-weight: bold;">⚡ SINCRONIZAR RESULTADOS REALES (ESPN API)</button>
-                            </div>
-
-                            <div class="admin-matches-list margin-top">
-                                <h3>INGRESAR MARCADORES OFICIALES DEL MUNDIAL:</h3>
-                                <div id="admin-matches-grid" class="admin-grid-layout">
-                                    <!-- Generado por JS -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
             </div>
         </main>

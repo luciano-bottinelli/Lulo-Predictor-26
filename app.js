@@ -662,8 +662,6 @@ async function syncWithSupabase() {
                 }
             } else if (tabId === 'profile-tab') {
                 renderProfileStats();
-            } else if (tabId === 'admin-tab') {
-                renderAdminGrid();
             }
         }
         updateManagerUIStats();
@@ -968,9 +966,13 @@ function getKnockoutRoundMatches(r32Pairings) {
 
 // ================= MOTOR DE SINCRONIZACIÓN EN TIEMPO REAL (API) =================
 
-async function syncRealWorldMatches() {
-    showToast("Sincronizando con ESPN Scoreboard API...");
-    Sound.playDisk();
+let _espnSyncInterval = null;
+
+async function syncRealWorldMatches(silent = false) {
+    if (!silent) {
+        showToast("Sincronizando con ESPN Scoreboard API...");
+        Sound.playDisk();
+    }
     
     try {
         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard');
@@ -1030,14 +1032,28 @@ async function syncRealWorldMatches() {
         const activeTabBtn = document.querySelector('.tab-btn.active');
         if (activeTabBtn) activeTabBtn.click();
         
-        showToast(`Sincronizado: ${updatedCount} partidos actualizados`);
-        Sound.playFanfare();
+        if (updatedCount > 0 || !silent) {
+            showToast(`Sincronizado: ${updatedCount} partidos actualizados`);
+            Sound.playFanfare();
+        }
         
     } catch(err) {
         console.error("Fallo al sincronizar con ESPN API: ", err);
-        showToast("Error de conexión con ESPN Scoreboard API");
-        Sound.playError();
+        if (!silent) {
+            showToast("Error de conexión con ESPN Scoreboard API");
+            Sound.playError();
+        }
     }
+}
+
+// Auto-sincronización en tiempo real con la API de ESPN (cada 60 segundos)
+function startAutoSync() {
+    if (_espnSyncInterval) clearInterval(_espnSyncInterval);
+    // Sincronizar inmediatamente al entrar al dashboard
+    syncRealWorldMatches(true);
+    // Luego cada 60 segundos en silencio
+    _espnSyncInterval = setInterval(() => syncRealWorldMatches(true), 60000);
+    console.log('ESPN Auto-Sync activado (cada 60s)');
 }
 
 // ================= ASISTENTE DE AUTOPREDICCIÓN RÁPIDA DE GRUPOS =================
@@ -1306,7 +1322,7 @@ function setupNavigation() {
                 document.querySelector('[data-subtab="global-standings-view"]').click();
             }
             else if (tabId === 'profile-tab') renderProfileStats();
-            else if (tabId === 'admin-tab') renderAdminGrid();
+            // Admin tab removed — all admin ops are done from dev tools
         });
     });
     
@@ -1345,11 +1361,6 @@ function setupNavigation() {
             
             renderBracketRound();
         });
-    });
-    
-    // Sincronizar partidos en vivo con la API de ESPN
-    document.getElementById('btn-sync-api-now').addEventListener('click', () => {
-        syncRealWorldMatches();
     });
     
     // Autopredicción
@@ -1720,76 +1731,7 @@ function setupNavigation() {
         });
     });
     
-    // SIMULAR FASE DE GRUPOS EN ADMIN
-    document.getElementById('btn-admin-auto-simulate').addEventListener('click', async () => {
-        state.matches.forEach(match => {
-            if (match.played) return;
-            const r = Math.random();
-            let h = 1, a = 0;
-            if (r < 0.25) { h = 2; a = 1; }
-            else if (r < 0.45) { h = 1; a = 1; }
-            else if (r < 0.6) { h = 0; a = 0; }
-            else if (r < 0.75) { h = 0; a = 2; }
-            else if (r < 0.9) { h = 3; a = 0; }
-            else { h = 1; a = 2; }
-            match.homeScore = h;
-            match.awayScore = a;
-            match.played = true;
-        });
-        
-        // Simular también la gran final oficial para adjudicación de bonos
-        const finalOfficialIndex = state.matches.findIndex(m => m.id === 'FINAL');
-        if (finalOfficialIndex === -1) {
-            state.matches.push({
-                id: 'FINAL',
-                stage: 'PLAYOFFS',
-                home: 'ARG',
-                away: 'VEN',
-                homeScore: 2,
-                awayScore: 1,
-                played: true
-            });
-        } else {
-            state.matches[finalOfficialIndex].homeScore = 2;
-            state.matches[finalOfficialIndex].awayScore = 1;
-            state.matches[finalOfficialIndex].played = true;
-        }
-        
-        calculateAllPoints();
-        saveDatabaseLocally();
-        
-        if (supabaseDb) {
-            showToast("Simulando en la nube... Espera.");
-            await pushAdminResultsToSupabase();
-        }
-        
-        renderAdminGrid();
-        updateManagerUIStats();
-        showToast("Grupos Simulados y Sincronizados!");
-        Sound.playFanfare();
-    });
-    
-    // REINICIAR RESULTADOS
-    document.getElementById('btn-admin-reset-results').addEventListener('click', async () => {
-        state.matches = generateGroupStageMatches();
-        
-        // Quitar la final artificial
-        const finalIdx = state.matches.findIndex(m => m.id === 'FINAL');
-        if (finalIdx !== -1) state.matches.splice(finalIdx, 1);
-        
-        calculateAllPoints();
-        saveDatabaseLocally();
-        
-        if (supabaseDb) {
-            showToast("Limpiando nube... Espera.");
-            await resetMatchesInSupabase();
-        }
-        
-        renderAdminGrid();
-        updateManagerUIStats();
-        showToast("Resultados Oficiales Reiniciados");
-        Sound.playError();
-    });
+    // Admin panel removed — admin operations done from developer tools only
 }
 
 // ================= SYNC COMPLEMENTARIO DE ADMINISTRACIÓN =================
@@ -1900,6 +1842,9 @@ function transitionToDashboard() {
     
     document.querySelector('[data-tab="matches-tab"]').click();
     updateManagerUIStats();
+    
+    // Arrancar auto-sincronización con ESPN
+    if (typeof startAutoSync === 'function') startAutoSync();
 }
 
 function updateManagerUIStats() {
@@ -2188,70 +2133,7 @@ function renderStandings() {
     });
 }
 
-// ================= PANEL DE ADMINISTRACIÓN =================
-
-function renderAdminGrid() {
-    const grid = document.getElementById('admin-matches-grid');
-    grid.innerHTML = '';
-    
-    // Mostrar partidos de grupo concluidos
-    state.matches.forEach(match => {
-        const card = document.createElement('div');
-        card.className = 'admin-match-card';
-        const hScore = match.homeScore !== null ? match.homeScore : 0;
-        const aScore = match.awayScore !== null ? match.awayScore : 0;
-        
-        card.innerHTML = `
-            <div class="admin-match-header">
-                <span>${match.stage.replace('GROUP_','GRUPO ')}</span>
-                <span>${match.date}</span>
-            </div>
-            <div class="admin-match-body">
-                <div class="admin-team">
-                    ${createCircularFlagHTML(match.home)}
-                    <span class="admin-team-name">${CONFIG.COUNTRIES[match.home]?.name || match.home}</span>
-                </div>
-                <div class="admin-score-inputs">
-                    <input type="number" min="0" max="9" class="admin-input-val adm-h-${match.id}" value="${hScore}">
-                    <span style="font-family: var(--font-pixel-display); font-size: 20px;">-</span>
-                    <input type="number" min="0" max="9" class="admin-input-val adm-a-${match.id}" value="${aScore}">
-                </div>
-                <div class="admin-team away">
-                    ${createCircularFlagHTML(match.away)}
-                    <span class="admin-team-name">${CONFIG.COUNTRIES[match.away]?.name || match.away}</span>
-                </div>
-            </div>
-            <div class="admin-match-footer">
-                <span class="admin-status-lbl ${match.played ? 'played' : 'pending'}">${match.played ? 'CONCLUIDO' : 'PENDIENTE'}</span>
-                <button class="retro-btn small-btn btn-admin-save" data-match-id="${match.id}">REGISTRAR</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-    
-    document.querySelectorAll('.btn-admin-save').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const matchId = parseInt(btn.dataset.matchId);
-            const match = state.matches.find(m => m.id === matchId);
-            const hVal = parseInt(document.querySelector(`.adm-h-${matchId}`).value);
-            const aVal = parseInt(document.querySelector(`.adm-a-${matchId}`).value);
-            
-            if (match && !isNaN(hVal) && !isNaN(aVal)) {
-                match.homeScore = hVal;
-                match.awayScore = aVal;
-                match.played = true;
-                
-                calculateAllPoints();
-                saveDatabase();
-                
-                renderAdminGrid();
-                updateManagerUIStats();
-                showToast("Marcador Oficial Registrado");
-                Sound.playFanfare();
-            }
-        });
-    });
-}
+// Admin panel removed — renderAdminGrid no longer needed
 
 // ================= RENDERING DE PARTIDOS DE GRUPO =================
 
