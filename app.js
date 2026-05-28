@@ -946,46 +946,41 @@ function compileUserPlayoffBracket() {
     const bestThirds = thirds.slice(0, 8);
     
     // 4. Emparejar Ronda de 32 (16avos de Final)
-    // Usaremos un emparejamiento determinista, simétrico y elegante
+    // Usaremos el formato proyectado para Mundial de 48 equipos:
+    // 8 primeros de grupo juegan contra los 8 mejores terceros (Grupos A a H)
+    // 4 primeros de grupo (I, J, K, L) juegan contra 4 segundos (A, B, C, D)
+    // 8 segundos restantes juegan entre sí (E vs F, G vs H, I vs J, K vs L)
+    
     const pairings = [];
+    const getWinner = (id, def) => state.currentUser.bracketPredictions[id]?.winner ?? def;
+    const getScore = (id, side) => state.currentUser.bracketPredictions[id]?.[side] ?? 0;
     
-    // 8 Ganadores de grupo vs 8 Mejores terceros
+    const createPairing = (id, hTeam, aTeam) => ({
+        id, home: hTeam, away: aTeam,
+        homeScore: getScore(id, 'homeScore'),
+        awayScore: getScore(id, 'awayScore'),
+        winner: getWinner(id, hTeam)
+    });
+    
+    const groupWinner = (idx) => firsts[idx]?.team || "TBD";
+    const groupSecond = (idx) => seconds[idx]?.team || "TBD";
+    const bestThird = (idx) => bestThirds[idx]?.team || "TBD";
+    
+    // 8 Ganadores (A-H) vs 8 Mejores Terceros
     for (let i = 0; i < 8; i++) {
-        pairings.push({
-            id: `R32_${i+1}`,
-            home: firsts[i].team,
-            away: bestThirds[i].team,
-            homeScore: state.currentUser.bracketPredictions[`R32_${i+1}`]?.homeScore ?? 0,
-            awayScore: state.currentUser.bracketPredictions[`R32_${i+1}`]?.awayScore ?? 0,
-            winner: state.currentUser.bracketPredictions[`R32_${i+1}`]?.winner ?? firsts[i].team
-        });
+        pairings.push(createPairing(`R32_${i+1}`, groupWinner(i), bestThird(i)));
     }
     
-    // 4 Ganadores de grupo restantes vs 4 Segundos
+    // 4 Ganadores (I-L) vs 4 Segundos (A-D)
     for (let i = 0; i < 4; i++) {
-        pairings.push({
-            id: `R32_${i+9}`,
-            home: firsts[i+8].team,
-            away: seconds[i].team,
-            homeScore: state.currentUser.bracketPredictions[`R32_${i+9}`]?.homeScore ?? 0,
-            awayScore: state.currentUser.bracketPredictions[`R32_${i+9}`]?.awayScore ?? 0,
-            winner: state.currentUser.bracketPredictions[`R32_${i+9}`]?.winner ?? firsts[i+8].team
-        });
+        pairings.push(createPairing(`R32_${i+9}`, groupWinner(i+8), groupSecond(i)));
     }
     
-    // Segundos restantes vs Segundos restantes
-    let pairIdx = 13;
-    for (let i = 4; i < 12; i += 2) {
-        pairings.push({
-            id: `R32_${pairIdx}`,
-            home: seconds[i].team,
-            away: seconds[i+1].team,
-            homeScore: state.currentUser.bracketPredictions[`R32_${pairIdx}`]?.homeScore ?? 0,
-            awayScore: state.currentUser.bracketPredictions[`R32_${pairIdx}`]?.awayScore ?? 0,
-            winner: state.currentUser.bracketPredictions[`R32_${pairIdx}`]?.winner ?? seconds[i].team
-        });
-        pairIdx++;
-    }
+    // 4 Cruces de Segundos (E vs F, G vs H, I vs J, K vs L)
+    pairings.push(createPairing(`R32_13`, groupSecond(4), groupSecond(5)));
+    pairings.push(createPairing(`R32_14`, groupSecond(6), groupSecond(7)));
+    pairings.push(createPairing(`R32_15`, groupSecond(8), groupSecond(9)));
+    pairings.push(createPairing(`R32_16`, groupSecond(10), groupSecond(11)));
     
     return pairings;
 }
@@ -1130,9 +1125,8 @@ async function syncRealWorldMatches(silent = false) {
         calculateAllPoints();
         saveDatabase();
         
-        // Recargar vista activa
-        const activeTabBtn = document.querySelector('.tab-btn.active');
-        if (activeTabBtn) activeTabBtn.click();
+        // Recargar vista activa sin sonido
+        refreshActiveTab();
         if (updatedCount > 0) {
             showToast(`Sincronizado: ${updatedCount} partidos actualizados`);
         }
@@ -1205,8 +1199,8 @@ function renderBracketRound() {
         
         let labelText = '';
         switch(state.bracketRound) {
-            case 'r32': labelText = `16AVOS DE FINAL - ${match.id}`; break;
-            case 'r16': labelText = `8AVOS DE FINAL - ${match.id}`; break;
+            case 'r32': labelText = `16° DE FINAL - ${match.id}`; break;
+            case 'r16': labelText = `8° DE FINAL - ${match.id}`; break;
             case 'r8': labelText = `CUARTOS DE FINAL - ${match.id}`; break;
             case 'r4': labelText = `SEMIFINAL - ${match.id}`; break;
             case 'r2': labelText = `GRAN FINAL - 🏆 MUNDIAL 2026`; break;
@@ -1216,9 +1210,8 @@ function renderBracketRound() {
         const isWinnerAway = match.winner === match.away;
         
         card.innerHTML = `
-            <div class="bracket-match-label">
+            <div class="bracket-match-label" style="justify-content: center;">
                 <span>${labelText}</span>
-                <span class="text-yellow" style="font-size:7px;">Puntos: +8 / +18</span>
             </div>
             <div class="match-card-body" style="padding:4px 0;">
                 <!-- Local -->
@@ -1258,10 +1251,14 @@ function renderBracketRound() {
                 const teamCode = teamDiv.querySelector('.team-name').innerText;
                 const countryCode = Object.keys(CONFIG.COUNTRIES).find(k => CONFIG.COUNTRIES[k].name === teamCode) || match.home;
                 
-                if (!state.currentUser.bracketPredictions[match.id]) {
-                    state.currentUser.bracketPredictions[match.id] = { homeScore: match.homeScore, awayScore: match.awayScore, winner: countryCode };
+                const predObj = state.currentUser.bracketPredictions[match.id] || { homeScore: 0, awayScore: 0, winner: countryCode };
+                
+                // Solo permitir selección manual si hay empate en goles
+                if (predObj.homeScore === predObj.awayScore) {
+                    predObj.winner = countryCode;
+                    state.currentUser.bracketPredictions[match.id] = predObj;
                 } else {
-                    state.currentUser.bracketPredictions[match.id].winner = countryCode;
+                    return; // No hacer nada si alguien ya ganó por goles
                 }
                 
                 saveDatabase();
@@ -1334,6 +1331,32 @@ function populateSpecialPredictionsForm() {
     document.getElementById('predict-assister').value = spec.assister || "";
 }
 
+function refreshActiveTab() {
+    const activeTabBtn = document.querySelector('.tab-btn.active');
+    if (!activeTabBtn) return;
+    const tabId = activeTabBtn.dataset.tab;
+    
+    if (tabId === 'matches-tab') {
+        updateGroupProgressBar();
+        renderMatches();
+    }
+    else if (tabId === 'bracket-tab') {
+        const unlocked = checkBracketUnlockState();
+        if (unlocked) renderBracketRound();
+    }
+    else if (tabId === 'standings-tab') {
+        const subTab = document.querySelector('.sub-tab-btn.active');
+        if (subTab) subTab.click();
+        else document.querySelector('[data-subtab="global-standings-view"]')?.click();
+    }
+    else if (tabId === 'profile-tab') renderProfileStats();
+    else if (tabId === 'config-tab') {
+        if (state.currentUser) {
+            document.getElementById('config-team-name').value = state.currentUser.teamName || "";
+        }
+    }
+}
+
 // ================= AUTENTICACIÓN, NAVEGACIÓN Y LOGUEO DE LA APLICACIÓN =================
 
 function setupNavigation() {
@@ -1357,23 +1380,7 @@ function setupNavigation() {
             activeContent.classList.remove('inactive-tab');
             activeContent.classList.add('active-tab');
             
-            if (tabId === 'matches-tab') {
-                updateGroupProgressBar();
-                renderMatches();
-            }
-            else if (tabId === 'bracket-tab') {
-                const unlocked = checkBracketUnlockState();
-                if (unlocked) renderBracketRound();
-            }
-            else if (tabId === 'standings-tab') {
-                document.querySelector('[data-subtab="global-standings-view"]').click();
-            }
-            else if (tabId === 'profile-tab') renderProfileStats();
-            else if (tabId === 'config-tab') {
-                if (state.currentUser) {
-                    document.getElementById('config-team-name').value = state.currentUser.teamName || "";
-                }
-            }
+            refreshActiveTab();
         });
     });
     
@@ -2365,6 +2372,90 @@ function renderMatches() {
         
         grid.appendChild(card);
     });
+    
+    // ==========================================
+    // Renderizar Tablas de Posiciones de Grupos
+    // ==========================================
+    const groupsToRender = filter === 'ALL' ? Object.keys(CONFIG.GROUPS) : [filter];
+    
+    // Contenedor de tablas de grupo
+    const tablesContainer = document.createElement('div');
+    tablesContainer.style.gridColumn = "1 / -1";
+    tablesContainer.style.display = "flex";
+    tablesContainer.style.flexWrap = "wrap";
+    tablesContainer.style.gap = "16px";
+    tablesContainer.style.marginTop = "24px";
+    tablesContainer.style.justifyContent = "center";
+    
+    groupsToRender.forEach(groupName => {
+        if (!CONFIG.GROUPS[groupName]) return;
+        
+        // Calcular standings locales para este grupo
+        const standings = CONFIG.GROUPS[groupName].map(t => ({ team: t, points: 0, gd: 0, gf: 0 }));
+        const groupMatches = state.matches.filter(m => m.stage === groupName);
+        
+        groupMatches.forEach(match => {
+            const pred = state.currentUser.predictions[match.id];
+            if (!pred) return;
+            const h = pred.homeScore;
+            const a = pred.awayScore;
+            
+            const homeTeam = standings.find(t => t.team === match.home);
+            const awayTeam = standings.find(t => t.team === match.away);
+            if (!homeTeam || !awayTeam) return;
+            
+            homeTeam.gf += h;
+            homeTeam.gd += (h - a);
+            awayTeam.gf += a;
+            awayTeam.gd += (a - h);
+            
+            if (h > a) { homeTeam.points += 3; } 
+            else if (h < a) { awayTeam.points += 3; } 
+            else { homeTeam.points += 1; awayTeam.points += 1; }
+        });
+        
+        standings.sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf);
+        
+        let tableRows = '';
+        standings.forEach((t, idx) => {
+            let rowClass = idx < 2 ? 'bg-green text-white' : (idx === 2 ? 'bg-yellow text-black' : 'bg-dark text-white');
+            tableRows += `
+                <tr class="${rowClass}" style="border-bottom: 1px solid #333;">
+                    <td style="padding:4px; font-size:10px;">${idx + 1}º</td>
+                    <td style="padding:4px; font-size:10px;">${createCircularFlagHTML(t.team)} ${CONFIG.COUNTRIES[t.team]?.name || t.team}</td>
+                    <td style="padding:4px; font-size:10px; font-weight:bold; text-align:center;">${t.points}</td>
+                    <td style="padding:4px; font-size:10px; text-align:center;">${t.gd > 0 ? '+'+t.gd : t.gd}</td>
+                    <td style="padding:4px; font-size:10px; text-align:center;">${t.gf}</td>
+                </tr>
+            `;
+        });
+        
+        const tableDiv = document.createElement('div');
+        tableDiv.className = "retro-panel";
+        tableDiv.style.flex = "1 1 300px";
+        tableDiv.style.maxWidth = "400px";
+        tableDiv.style.padding = "8px";
+        tableDiv.innerHTML = `
+            <div class="window-title-bar" style="margin-bottom:8px;">
+                <span class="window-title-text" style="font-size:10px;">🏆 TABLA ${groupName.replace('GROUP_','GRUPO ')}</span>
+            </div>
+            <table style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #fff; font-family: var(--font-pixel-heading); font-size: 8px;">
+                        <th style="text-align:left; padding:4px;">POS</th>
+                        <th style="text-align:left; padding:4px;">EQUIPO</th>
+                        <th style="text-align:center; padding:4px;">PTS</th>
+                        <th style="text-align:center; padding:4px;">DIF</th>
+                        <th style="text-align:center; padding:4px;">GF</th>
+                    </tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+        `;
+        tablesContainer.appendChild(tableDiv);
+    });
+    
+    grid.appendChild(tablesContainer);
     
     // Controles de marcadores
     document.querySelectorAll('.btn-score-change').forEach(btn => {
