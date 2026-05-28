@@ -523,9 +523,30 @@
                     <div class="retro-panel" style="max-width: 500px; margin: 0 auto; padding: 24px;">
                         <h2 style="font-family: var(--font-pixel-heading); font-size: 16px; margin-bottom: 20px; color: var(--win-blue); border-bottom: 2px solid var(--pixel-dark-green); padding-bottom: 10px;">AJUSTES DE MÁNAGER</h2>
                         
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-family: var(--font-pixel-heading); font-size: 10px; margin-bottom: 8px;">NOMBRE DEL MÁNAGER:</label>
+                            <input type="text" id="config-username" class="retro-input" style="width: 100%; box-sizing: border-box;" maxlength="15" autocomplete="off">
+                        </div>
+
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; font-family: var(--font-pixel-heading); font-size: 10px; margin-bottom: 8px;">NOMBRE DE EQUIPO:</label>
-                            <input type="text" id="config-team-name" class="retro-input" style="width: 100%; box-sizing: border-box;" maxlength="24">
+                            <input type="text" id="config-team-name" class="retro-input" style="width: 100%; box-sizing: border-box;" maxlength="24" autocomplete="off">
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; font-family: var(--font-pixel-heading); font-size: 10px; margin-bottom: 8px;">FOTO DE PERFIL:</label>
+                            <div class="avatar-onboarding-panel" style="display: flex; align-items: center; gap: 16px;">
+                                <div class="avatar-preview-box" style="width: 80px; height: 80px; background-color: var(--black); border: 2px inset #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #000;">
+                                    <img id="config-avatar-preview" src="" alt="Vista Previa" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                                    <label for="config-avatar-file" class="retro-btn small-btn text-center" style="display: block; cursor: pointer; text-align: center; line-height: 1.5; padding: 6px;">
+                                        📁 SUBIR DE GALERÍA
+                                    </label>
+                                    <input type="file" id="config-avatar-file" accept="image/*" style="display: none;">
+                                    <button type="button" id="btn-config-remove-avatar" class="retro-btn small-btn">❌ SIN FOTO (VACIAR)</button>
+                                </div>
+                            </div>
                         </div>
                         
                         <button id="btn-save-config" class="retro-btn primary pulse" style="width: 100%; margin-bottom: 30px;">GUARDAR CAMBIOS</button>

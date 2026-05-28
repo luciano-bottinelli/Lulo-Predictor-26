@@ -1480,7 +1480,10 @@ function refreshActiveTab() {
     else if (tabId === 'profile-tab') renderProfileStats();
     else if (tabId === 'config-tab') {
         if (state.currentUser) {
+            document.getElementById('config-username').value = state.currentUser.username || "";
             document.getElementById('config-team-name').value = state.currentUser.teamName || "";
+            const avatarPreview = document.getElementById('config-avatar-preview');
+            avatarPreview.src = (state.currentUser.avatarType === 'custom' && state.currentUser.avatar) ? state.currentUser.avatar : DEFAULT_AVATAR;
         }
     }
 }
@@ -1953,27 +1956,97 @@ function setupNavigation() {
     const btnConfigLogout = document.getElementById('btn-config-logout');
     if (btnConfigLogout) btnConfigLogout.addEventListener('click', handleLogout);
     
+    // Listeners del Avatar en Configuración
+    const configAvatarFile = document.getElementById('config-avatar-file');
+    if (configAvatarFile) {
+        configAvatarFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById('config-avatar-preview').src = evt.target.result;
+                showToast("Foto de Galería Cargada");
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    const btnRemoveConfigAvatar = document.getElementById('btn-config-remove-avatar');
+    if (btnRemoveConfigAvatar) {
+        btnRemoveConfigAvatar.addEventListener('click', () => {
+            document.getElementById('config-avatar-preview').src = DEFAULT_AVATAR;
+            showToast("Foto Removida");
+        });
+    }
+
     // Guardar Configuración
     const btnSaveConfig = document.getElementById('btn-save-config');
     if (btnSaveConfig) {
         btnSaveConfig.addEventListener('click', async () => {
             if (!state.currentUser) return;
+            const newUsername = document.getElementById('config-username').value.trim();
             const newTeamName = document.getElementById('config-team-name').value.trim();
-            if (newTeamName) {
+            
+            if (newUsername && newTeamName) {
+                // Check if username is taken
+                if (state.users.some(u => u.username && u.username.toLowerCase() === newUsername.toLowerCase() && u.id !== state.currentUser.id)) {
+                    showToast("Mánager ya registrado. Elige otro nombre.");
+                    Sound.playError();
+                    return;
+                }
+                
+                const oldUsername = state.currentUser.username;
+                const usernameChanged = oldUsername !== newUsername;
+                
+                state.currentUser.username = newUsername;
                 state.currentUser.teamName = newTeamName;
+                
+                // Actualizar avatar según el preview
+                const avatarPreview = document.getElementById('config-avatar-preview');
+                if (avatarPreview.src && avatarPreview.src.length > 100) { 
+                    state.currentUser.avatar = avatarPreview.src;
+                    state.currentUser.avatarType = 'custom';
+                } else {
+                    state.currentUser.avatar = '';
+                    state.currentUser.avatarType = 'none';
+                }
+                
+                if (usernameChanged) {
+                    const userInList = state.users.find(u => u.id === state.currentUser.id);
+                    if (userInList) userInList.username = newUsername;
+                    
+                    state.clans.forEach(clan => {
+                        const idx = clan.members.indexOf(oldUsername);
+                        if (idx !== -1) {
+                            clan.members[idx] = newUsername;
+                            if (supabaseDb) {
+                                supabaseDb.from('clans').update({ members: clan.members }).eq('id', clan.id).then();
+                            }
+                        }
+                    });
+                }
+                
                 saveDatabaseLocally();
                 
                 if (supabaseDb) {
                     try {
-                        await supabaseDb.from('users').update({ team_name: newTeamName }).eq('email', state.currentUser.email);
+                        await supabaseDb.from('users').update({ 
+                            username: newUsername,
+                            team_name: newTeamName,
+                            avatar: state.currentUser.avatar,
+                            avatar_type: state.currentUser.avatarType
+                        }).eq('email', state.currentUser.email);
                     } catch (e) {
-                        console.error("Fallo al actualizar nombre de equipo en Supabase:", e);
+                        console.error("Fallo al actualizar config en Supabase:", e);
                     }
                 }
                 
                 updateManagerUIStats();
                 showToast("Configuración Guardada");
                 Sound.playDisk();
+            } else {
+                showToast("Completa los campos obligatorios");
+                Sound.playError();
             }
         });
     }
