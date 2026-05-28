@@ -532,7 +532,7 @@ function loadDatabase() {
     const storedUsers = localStorage.getItem('predictor_lulo_users');
     if (storedUsers) {
         try {
-            state.users = JSON.parse(storedUsers);
+            state.users = JSON.parse(storedUsers).filter(u => !u.isCPU);
         } catch (e) {
             console.error("Error parsing predictor_lulo_users, restoring default CPU players...", e);
             state.users = JSON.parse(JSON.stringify(CPU_PLAYERS));
@@ -751,7 +751,8 @@ async function syncWithSupabase() {
                 updateGroupProgressBar();
                 renderMatches();
             } else if (tabId === 'standings-tab') {
-                const activeSubTabBtn = document.querySelector('.sub-tab-btn.active');
+                const standingsTabContent = document.getElementById('standings-tab');
+                const activeSubTabBtn = standingsTabContent ? standingsTabContent.querySelector('.sub-tab-btn.active') : null;
                 if (activeSubTabBtn) {
                     const subtabId = activeSubTabBtn.dataset.subtab;
                     if (subtabId === 'global-standings-view') renderStandings();
