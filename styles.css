@@ -1691,3 +1691,19 @@ body:not(.crt-active) .crt-scanlines {
     }
 }
 
+/* Efectos de Eliminatorias */
+.winner-glow .retro-flag-container {
+    box-shadow: 0 0 15px 4px var(--yellow), inset 1px 1px 1px #ffffff, inset -1px -1px 1px #888888;
+    background-color: var(--yellow);
+}
+
+.matches-grid-layout.centered-layout {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.match-card.final-match-card {
+    transform: scale(1.15);
+    margin: 30px;
+}

@@ -253,6 +253,36 @@ const Sound = {
         osc.stop(audioCtx.currentTime + 0.04);
     },
     
+    playVictory() {
+        if (!state.soundEnabled) return;
+        this.init();
+        if (!audioCtx) return;
+        
+        // Acorde mayor de victoria (arpegio rápido)
+        const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5
+        let time = audioCtx.currentTime;
+        
+        notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, time);
+            
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(0.08, time + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start(time);
+            osc.stop(time + 0.3);
+            
+            time += 0.1; // Siguiente nota arpegiada
+        });
+    },
+    
     playDisk() {
         if (!state.soundEnabled) return;
         this.init();
@@ -1205,9 +1235,15 @@ function renderBracketRound() {
     
     if (!roundMatches || roundMatches.length === 0) return;
     
+    if (state.bracketRound === 'r4' || state.bracketRound === 'r2') {
+        deck.classList.add('centered-layout');
+    } else {
+        deck.classList.remove('centered-layout');
+    }
+    
     roundMatches.forEach((match) => {
         const card = document.createElement('div');
-        card.className = 'bracket-match-card';
+        card.className = 'bracket-match-card' + (state.bracketRound === 'r2' ? ' final-match-card' : '');
         
         let labelText = '';
         switch(state.bracketRound) {
@@ -1227,7 +1263,7 @@ function renderBracketRound() {
             </div>
             <div class="match-card-body" style="padding:4px 0;">
                 <!-- Local -->
-                <div class="match-team" style="cursor:pointer;" class="btn-adv-toggle" data-match-id="${match.id}" data-team="${match.home}">
+                <div class="match-team btn-adv-toggle ${isWinnerHome ? 'winner-glow' : ''}" style="cursor:pointer;" data-match-id="${match.id}" data-team="${match.home}">
                     ${createCircularFlagHTML(match.home)}
                     <span class="team-name ${isWinnerHome ? 'text-yellow font-bold' : ''}" style="font-size:14px; margin-top:2px;">${CONFIG.COUNTRIES[match.home]?.name || match.home}</span>
                 </div>
@@ -1248,7 +1284,7 @@ function renderBracketRound() {
                 </div>
                 
                 <!-- Visitante -->
-                <div class="match-team" style="cursor:pointer;" class="btn-adv-toggle" data-match-id="${match.id}" data-team="${match.away}">
+                <div class="match-team btn-adv-toggle ${isWinnerAway ? 'winner-glow' : ''}" style="cursor:pointer;" data-match-id="${match.id}" data-team="${match.away}">
                     ${createCircularFlagHTML(match.away)}
                     <span class="team-name ${isWinnerAway ? 'text-yellow font-bold' : ''}" style="font-size:14px; margin-top:2px;">${CONFIG.COUNTRIES[match.away]?.name || match.away}</span>
                 </div>
@@ -1296,6 +1332,54 @@ function renderBracketRound() {
         </div>
     `;
     deck.appendChild(savePhaseContainer);
+    
+    // Panel final extra (MVP y Botón de Subir Predicciones)
+    if (state.bracketRound === 'r2') {
+        const extraPanel = document.createElement('div');
+        extraPanel.style.gridColumn = "1 / -1";
+        extraPanel.style.marginTop = "30px";
+        extraPanel.innerHTML = `
+            <div class="retro-panel" style="max-width: 600px; margin: 0 auto; text-align: center; padding: 20px;">
+                <h3 style="color: var(--yellow); font-family: var(--font-pixel-heading); font-size: 14px; margin-bottom: 15px;">PREMIOS EXTRA DEL MUNDIAL</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+                    <button class="retro-btn btn-disabled" style="cursor: not-allowed; opacity: 0.7;" disabled>🏅 MÁXIMO GOLEADOR (Próximamente)</button>
+                    <button class="retro-btn btn-disabled" style="cursor: not-allowed; opacity: 0.7;" disabled>🎯 MEJOR ASISTIDOR (Próximamente)</button>
+                    <button class="retro-btn btn-disabled" style="cursor: not-allowed; opacity: 0.7;" disabled>⭐ MVP DEL TORNEO (Próximamente)</button>
+                </div>
+                
+                <hr style="border: 1px dashed #555; margin-bottom: 20px;">
+                
+                <p style="font-family: var(--font-pixel-heading); font-size: 10px; color: #aaa; margin-bottom: 15px;">Al subir tus predicciones, estas quedarán fijadas en tu perfil para sumar puntos reales cuando comience el mundial.</p>
+                <button id="btn-submit-predictions" class="retro-btn primary pulse" style="width: 100%; font-size: 16px; padding: 15px;">🚀 SUBIR PREDICCIONES 🚀</button>
+            </div>
+        `;
+        deck.appendChild(extraPanel);
+        
+        // Funcionalidad de Subir Predicciones
+        const btnSubmit = extraPanel.querySelector('#btn-submit-predictions');
+        if (btnSubmit) {
+            btnSubmit.addEventListener('click', () => {
+                // Verificar si todo está completo antes de subir
+                if (isRoundCompleteCheck) {
+                    Sound.playVictory();
+                    if (!window.confetti) {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+                        script.onload = () => window.confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
+                        document.head.appendChild(script);
+                    } else {
+                        window.confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
+                    }
+                    showToast("¡Predicciones del Mundial Subidas con Éxito!");
+                    saveDatabase();
+                } else {
+                    showToast("⚠️ Debes guardar el resultado de la final primero");
+                    Sound.playClick();
+                }
+            });
+        }
+    }
     
     // Funcionalidad del botón GUARDAR FASE
     const btnSavePhase = savePhaseContainer.querySelector('.btn-save-bracket-phase');
