@@ -2334,69 +2334,75 @@ function renderMatches() {
         return;
     }
     
-    filteredMatches.forEach(match => {
-        const card = document.createElement('div');
-        card.className = 'match-card';
-        const pred = state.currentUser.predictions[match.id] || { homeScore: 0, awayScore: 0, saved: false };
+    const groupsToRender = filter === 'ALL' ? Object.keys(CONFIG.GROUPS) : [filter];
+    
+    groupsToRender.forEach(groupName => {
+        const groupMatches = state.matches.filter(m => m.stage === groupName);
+        if (!groupMatches || groupMatches.length === 0) return;
         
-        let footerHTML = '';
-        if (match.played) {
-            let badgeClass = 'zero-points';
-            let badgeText = '0 PTS';
-            
-            if (match.homeScore === pred.homeScore && match.awayScore === pred.awayScore) {
-                badgeClass = 'exact-score';
-                badgeText = '🎯 +15 PTS';
-            } else if (
-                (match.homeScore > match.awayScore && pred.homeScore > pred.awayScore) ||
-                (match.homeScore < match.awayScore && pred.homeScore < pred.awayScore) ||
-                (match.homeScore === match.awayScore && pred.homeScore === pred.awayScore)
-            ) {
-                badgeClass = 'outcome-only';
-                badgeText = '⚽ +5 PTS';
-            }
-            
-            footerHTML = `
-                <div class="match-status-text text-green">OFICIAL: ${match.homeScore} - ${match.awayScore}</div>
-                <div class="points-badge ${badgeClass}">${badgeText}</div>
-            `;
-        } else {
-            footerHTML = `
-                <span class="disk-indicator ${pred.saved ? 'saved' : 'pending'}">💾</span>
-                <div class="match-save-action">
-                    <button class="retro-btn btn-save-pred small-btn" data-match-id="${match.id}">${pred.saved ? 'ACTUALIZAR' : 'GUARDAR'}</button>
-                </div>
-            `;
-        }
+        // Contenedor principal del grupo
+        const groupContainer = document.createElement('div');
+        groupContainer.style.gridColumn = "1 / -1";
+        groupContainer.style.display = "flex";
+        groupContainer.style.flexDirection = "column";
+        groupContainer.style.gap = "16px";
+        groupContainer.style.marginBottom = "32px";
+        groupContainer.style.padding = "16px";
+        groupContainer.style.border = "2px solid #333";
+        groupContainer.style.backgroundColor = "rgba(0,0,0,0.2)";
         
+        // Título del Grupo
+        const groupTitle = document.createElement('h2');
+        groupTitle.innerText = groupName.replace('GROUP_','GRUPO ');
+        groupTitle.style.color = "var(--yellow)";
+        groupTitle.style.fontFamily = "var(--font-pixel-heading)";
+        groupTitle.style.textAlign = "center";
+        groupTitle.style.margin = "0 0 8px 0";
+        groupContainer.appendChild(groupTitle);
+        
+        // Grilla de partidos del grupo
+        const groupMatchesGrid = document.createElement('div');
+        groupMatchesGrid.style.display = "flex";
+        groupMatchesGrid.style.flexWrap = "wrap";
+        groupMatchesGrid.style.gap = "16px";
+        groupMatchesGrid.style.justifyContent = "center";
+        
+        // Calcular estado de guardado del grupo entero (si hay pendientes)
+        let anyUnsaved = false;
+        
+        groupMatches.forEach(match => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            const pred = state.currentUser.predictions[match.id] || { homeScore: 0, awayScore: 0, saved: false };
+            
+            if (!pred.saved && !match.played) anyUnsaved = true;
+            
             const stadiums = ["Azteca", "MetLife", "SoFi", "Hard Rock", "AT&T", "Lumen", "BMO", "BC Place"];
             const stadium = stadiums[match.id % stadiums.length];
             const dateStr = match.date.replace(/^GRUPO\s+[A-L]\s*-\s*/i, '').replace(/ de Junio/i, ' Jun').replace(/,\s*2026/g, '').replace(/\s*-\s*/, ' ');
             
             card.innerHTML = `
             <div class="match-card-header" style="justify-content: center; gap: 4px; white-space: nowrap; overflow: hidden; padding-bottom: 8px; font-size: 8px;">
-                <span class="text-yellow" style="font-weight:bold;">${match.stage.replace('GROUP_','GRUPO ')}</span>
-                <span style="color: #555;">|</span>
                 <span style="color: #ddd;">${dateStr}</span>
                 <span style="color: #555;">|</span>
                 <span style="color: #aaa; text-overflow: ellipsis; overflow: hidden;">${stadium}</span>
             </div>
-            <div class="match-card-body">
+            <div class="match-card-body" style="padding-bottom: 8px;">
                 <div class="match-team">
                     ${createCircularFlagHTML(match.home)}
                     <span class="team-name">${CONFIG.COUNTRIES[match.home]?.name || match.home}</span>
                 </div>
                 <div class="match-score-inputs">
                     <div class="score-control">
-                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="inc" data-match-id="${match.id}">+</button>` : ''}
+                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="inc" data-match-id="\${match.id}">+</button>\` : ''}
                         <div class="score-display-box" id="disp-home-${match.id}">${pred.homeScore}</div>
-                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="dec" data-match-id="${match.id}">-</button>` : ''}
+                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="dec" data-match-id="\${match.id}">-</button>\` : ''}
                     </div>
                     <span class="score-separator">-</span>
                     <div class="score-control">
-                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="inc" data-match-id="${match.id}">+</button>` : ''}
+                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="inc" data-match-id="\${match.id}">+</button>\` : ''}
                         <div class="score-display-box" id="disp-away-${match.id}">${pred.awayScore}</div>
-                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="dec" data-match-id="${match.id}">-</button>` : ''}
+                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="dec" data-match-id="\${match.id}">-</button>\` : ''}
                     </div>
                 </div>
                 <div class="match-team">
@@ -2404,53 +2410,38 @@ function renderMatches() {
                     <span class="team-name">${CONFIG.COUNTRIES[match.away]?.name || match.away}</span>
                 </div>
             </div>
-            <div class="match-card-footer">
-                ${footerHTML}
-            </div>
-        `;
+            `;
+            
+            // Si ya se jugó, agregar footer con puntos en vez de botón guardar
+            if (match.played) {
+                let badgeClass = 'zero-points';
+                let badgeText = '0 PTS';
+                if (match.homeScore === pred.homeScore && match.awayScore === pred.awayScore) {
+                    badgeClass = 'exact-score'; badgeText = '🎯 +15 PTS';
+                } else if ((match.homeScore > match.awayScore && pred.homeScore > pred.awayScore) || (match.homeScore < match.awayScore && pred.homeScore < pred.awayScore) || (match.homeScore === match.awayScore && pred.homeScore === pred.awayScore)) {
+                    badgeClass = 'outcome-only'; badgeText = '⚽ +5 PTS';
+                }
+                card.innerHTML += \`<div class="match-card-footer"><div class="match-status-text text-green">OFICIAL: \${match.homeScore} - \${match.awayScore}</div><div class="points-badge \${badgeClass}">\${badgeText}</div></div>\`;
+            }
+            
+            groupMatchesGrid.appendChild(card);
+        });
         
-        grid.appendChild(card);
-    });
-    
-    // ==========================================
-    // Renderizar Tablas de Posiciones de Grupos
-    // ==========================================
-    const groupsToRender = filter === 'ALL' ? Object.keys(CONFIG.GROUPS) : [filter];
-    
-    // Contenedor de tablas de grupo
-    const tablesContainer = document.createElement('div');
-    tablesContainer.style.gridColumn = "1 / -1";
-    tablesContainer.style.display = "flex";
-    tablesContainer.style.flexWrap = "wrap";
-    tablesContainer.style.gap = "16px";
-    tablesContainer.style.marginTop = "24px";
-    tablesContainer.style.justifyContent = "center";
-    
-    groupsToRender.forEach(groupName => {
-        if (!CONFIG.GROUPS[groupName]) return;
+        groupContainer.appendChild(groupMatchesGrid);
         
-        // Calcular standings locales para este grupo
+        // ==========================================
+        // Calcular y Mostrar Tabla del Grupo
+        // ==========================================
         const standings = CONFIG.GROUPS[groupName].map(t => ({ team: t, points: 0, gd: 0, gf: 0 }));
-        const groupMatches = state.matches.filter(m => m.stage === groupName);
-        
         groupMatches.forEach(match => {
             const pred = state.currentUser.predictions[match.id];
             if (!pred) return;
-            const h = pred.homeScore;
-            const a = pred.awayScore;
-            
+            const h = pred.homeScore; const a = pred.awayScore;
             const homeTeam = standings.find(t => t.team === match.home);
             const awayTeam = standings.find(t => t.team === match.away);
             if (!homeTeam || !awayTeam) return;
-            
-            homeTeam.gf += h;
-            homeTeam.gd += (h - a);
-            awayTeam.gf += a;
-            awayTeam.gd += (a - h);
-            
-            if (h > a) { homeTeam.points += 3; } 
-            else if (h < a) { awayTeam.points += 3; } 
-            else { homeTeam.points += 1; awayTeam.points += 1; }
+            homeTeam.gf += h; homeTeam.gd += (h - a); awayTeam.gf += a; awayTeam.gd += (a - h);
+            if (h > a) { homeTeam.points += 3; } else if (h < a) { awayTeam.points += 3; } else { homeTeam.points += 1; awayTeam.points += 1; }
         });
         
         standings.sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf);
@@ -2458,26 +2449,23 @@ function renderMatches() {
         let tableRows = '';
         standings.forEach((t, idx) => {
             let rowClass = idx < 2 ? 'bg-green text-white' : (idx === 2 ? 'bg-yellow text-black' : 'bg-dark text-white');
-            tableRows += `
-                <tr class="${rowClass}" style="border-bottom: 1px solid #333;">
-                    <td style="padding:4px; font-size:10px;">${idx + 1}º</td>
-                    <td style="padding:4px; font-size:10px;">${createCircularFlagHTML(t.team)} ${CONFIG.COUNTRIES[t.team]?.name || t.team}</td>
-                    <td style="padding:4px; font-size:10px; font-weight:bold; text-align:center;">${t.points}</td>
-                    <td style="padding:4px; font-size:10px; text-align:center;">${t.gd > 0 ? '+'+t.gd : t.gd}</td>
-                    <td style="padding:4px; font-size:10px; text-align:center;">${t.gf}</td>
-                </tr>
-            `;
+            tableRows += \`
+                <tr class="\${rowClass}" style="border-bottom: 1px solid #333;">
+                    <td style="padding:4px; font-size:10px;">\${idx + 1}º</td>
+                    <td style="padding:4px; font-size:10px;">\${createCircularFlagHTML(t.team)} \${CONFIG.COUNTRIES[t.team]?.name || t.team}</td>
+                    <td style="padding:4px; font-size:10px; font-weight:bold; text-align:center;">\${t.points}</td>
+                    <td style="padding:4px; font-size:10px; text-align:center;">\${t.gd > 0 ? '+'+t.gd : t.gd}</td>
+                    <td style="padding:4px; font-size:10px; text-align:center;">\${t.gf}</td>
+                </tr>\`;
         });
         
         const tableDiv = document.createElement('div');
         tableDiv.className = "retro-panel";
-        tableDiv.style.flex = "1 1 300px";
-        tableDiv.style.maxWidth = "400px";
+        tableDiv.style.margin = "16px auto";
+        tableDiv.style.width = "100%";
+        tableDiv.style.maxWidth = "500px";
         tableDiv.style.padding = "8px";
-        tableDiv.innerHTML = `
-            <div class="window-title-bar" style="margin-bottom:8px;">
-                <span class="window-title-text" style="font-size:10px;">🏆 TABLA ${groupName.replace('GROUP_','GRUPO ')}</span>
-            </div>
+        tableDiv.innerHTML = \`
             <table style="width:100%; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 2px solid #fff; font-family: var(--font-pixel-heading); font-size: 10px;">
@@ -2488,13 +2476,31 @@ function renderMatches() {
                         <th style="text-align:center; padding:4px;">GF</th>
                     </tr>
                 </thead>
-                <tbody>${tableRows}</tbody>
+                <tbody>\${tableRows}</tbody>
             </table>
-        `;
-        tablesContainer.appendChild(tableDiv);
+        \`;
+        
+        groupContainer.appendChild(tableDiv);
+        
+        // Botón GUARDAR GRUPO
+        const saveGroupBtnContainer = document.createElement('div');
+        saveGroupBtnContainer.style.textAlign = "center";
+        saveGroupBtnContainer.style.marginTop = "8px";
+        
+        const isGroupPlayed = groupMatches.every(m => m.played);
+        
+        if (!isGroupPlayed) {
+            saveGroupBtnContainer.innerHTML = \`
+                <span class="disk-indicator \${!anyUnsaved ? 'saved' : 'pending'}" style="margin-right: 8px;">💾</span>
+                <button class="retro-btn btn-save-group" data-group-name="\${groupName}" style="padding: 12px 32px; font-size: 14px; cursor: pointer;">
+                    \${!anyUnsaved ? 'GRUPO ACTUALIZADO' : 'GUARDAR GRUPO'}
+                </button>
+            \`;
+            groupContainer.appendChild(saveGroupBtnContainer);
+        }
+        
+        grid.appendChild(groupContainer);
     });
-    
-    grid.appendChild(tablesContainer);
     
     // Controles de marcadores
     document.querySelectorAll('.btn-score-change').forEach(btn => {
@@ -2527,13 +2533,22 @@ function renderMatches() {
         });
     });
     
-    // Guardar pronósticos
-    document.querySelectorAll('.btn-save-pred').forEach(btn => {
+    // Guardar pronósticos por grupo
+    document.querySelectorAll('.btn-save-group').forEach(btn => {
         btn.addEventListener('click', () => {
-            const matchId = parseInt(btn.dataset.matchId);
-            const pred = state.currentUser.predictions[matchId];
-            if (pred) {
-                pred.saved = true;
+            const groupName = btn.dataset.groupName;
+            const groupMatches = state.matches.filter(m => m.stage === groupName);
+            let savedCount = 0;
+            
+            groupMatches.forEach(m => {
+                const pred = state.currentUser.predictions[m.id];
+                if (pred) {
+                    pred.saved = true;
+                    savedCount++;
+                }
+            });
+            
+            if (savedCount > 0) {
                 saveDatabase();
                 
                 // Actualizar progreso
@@ -2541,7 +2556,8 @@ function renderMatches() {
                 renderMatches();
                 
                 checkBracketUnlockState();
-                showToast("Predicción Guardada");
+                showToast("Grupo Guardado");
+                Sound.playBeep();
             }
         });
     });
