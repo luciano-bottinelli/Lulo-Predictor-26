@@ -2394,15 +2394,15 @@ function renderMatches() {
                 </div>
                 <div class="match-score-inputs">
                     <div class="score-control">
-                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="inc" data-match-id="\${match.id}">+</button>\` : ''}
+                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="inc" data-match-id="${match.id}">+</button>` : ''}
                         <div class="score-display-box" id="disp-home-${match.id}">${pred.homeScore}</div>
-                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="dec" data-match-id="\${match.id}">-</button>\` : ''}
+                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="home" data-action="dec" data-match-id="${match.id}">-</button>` : ''}
                     </div>
                     <span class="score-separator">-</span>
                     <div class="score-control">
-                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="inc" data-match-id="\${match.id}">+</button>\` : ''}
+                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="inc" data-match-id="${match.id}">+</button>` : ''}
                         <div class="score-display-box" id="disp-away-${match.id}">${pred.awayScore}</div>
-                        ${!match.played ? \`<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="dec" data-match-id="\${match.id}">-</button>\` : ''}
+                        ${!match.played ? `<button class="retro-btn arrow-btn btn-score-change" data-target="away" data-action="dec" data-match-id="${match.id}">-</button>` : ''}
                     </div>
                 </div>
                 <div class="match-team">
@@ -2421,7 +2421,7 @@ function renderMatches() {
                 } else if ((match.homeScore > match.awayScore && pred.homeScore > pred.awayScore) || (match.homeScore < match.awayScore && pred.homeScore < pred.awayScore) || (match.homeScore === match.awayScore && pred.homeScore === pred.awayScore)) {
                     badgeClass = 'outcome-only'; badgeText = '⚽ +5 PTS';
                 }
-                card.innerHTML += \`<div class="match-card-footer"><div class="match-status-text text-green">OFICIAL: \${match.homeScore} - \${match.awayScore}</div><div class="points-badge \${badgeClass}">\${badgeText}</div></div>\`;
+                card.innerHTML += `<div class="match-card-footer"><div class="match-status-text text-green">OFICIAL: ${match.homeScore} - ${match.awayScore}</div><div class="points-badge ${badgeClass}">${badgeText}</div></div>`;
             }
             
             groupMatchesGrid.appendChild(card);
@@ -2449,14 +2449,14 @@ function renderMatches() {
         let tableRows = '';
         standings.forEach((t, idx) => {
             let rowClass = idx < 2 ? 'bg-green text-white' : (idx === 2 ? 'bg-yellow text-black' : 'bg-dark text-white');
-            tableRows += \`
-                <tr class="\${rowClass}" style="border-bottom: 1px solid #333;">
-                    <td style="padding:4px; font-size:10px;">\${idx + 1}º</td>
-                    <td style="padding:4px; font-size:10px;">\${createCircularFlagHTML(t.team)} \${CONFIG.COUNTRIES[t.team]?.name || t.team}</td>
-                    <td style="padding:4px; font-size:10px; font-weight:bold; text-align:center;">\${t.points}</td>
-                    <td style="padding:4px; font-size:10px; text-align:center;">\${t.gd > 0 ? '+'+t.gd : t.gd}</td>
-                    <td style="padding:4px; font-size:10px; text-align:center;">\${t.gf}</td>
-                </tr>\`;
+            tableRows += `
+                <tr class="${rowClass}" style="border-bottom: 1px solid #333;">
+                    <td style="padding:4px; font-size:10px;">${idx + 1}º</td>
+                    <td style="padding:4px; font-size:10px;">${createCircularFlagHTML(t.team)} ${CONFIG.COUNTRIES[t.team]?.name || t.team}</td>
+                    <td style="padding:4px; font-size:10px; font-weight:bold; text-align:center;">${t.points}</td>
+                    <td style="padding:4px; font-size:10px; text-align:center;">${t.gd > 0 ? '+'+t.gd : t.gd}</td>
+                    <td style="padding:4px; font-size:10px; text-align:center;">${t.gf}</td>
+                </tr>`;
         });
         
         const tableDiv = document.createElement('div');
@@ -2465,7 +2465,7 @@ function renderMatches() {
         tableDiv.style.width = "100%";
         tableDiv.style.maxWidth = "500px";
         tableDiv.style.padding = "8px";
-        tableDiv.innerHTML = \`
+        tableDiv.innerHTML = `
             <table style="width:100%; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 2px solid #fff; font-family: var(--font-pixel-heading); font-size: 10px;">
@@ -2476,9 +2476,9 @@ function renderMatches() {
                         <th style="text-align:center; padding:4px;">GF</th>
                     </tr>
                 </thead>
-                <tbody>\${tableRows}</tbody>
+                <tbody>${tableRows}</tbody>
             </table>
-        \`;
+        `;
         
         groupContainer.appendChild(tableDiv);
         
@@ -2490,12 +2490,12 @@ function renderMatches() {
         const isGroupPlayed = groupMatches.every(m => m.played);
         
         if (!isGroupPlayed) {
-            saveGroupBtnContainer.innerHTML = \`
-                <span class="disk-indicator \${!anyUnsaved ? 'saved' : 'pending'}" style="margin-right: 8px;">💾</span>
-                <button class="retro-btn btn-save-group" data-group-name="\${groupName}" style="padding: 12px 32px; font-size: 14px; cursor: pointer;">
-                    \${!anyUnsaved ? 'GRUPO ACTUALIZADO' : 'GUARDAR GRUPO'}
+            saveGroupBtnContainer.innerHTML = `
+                <span class="disk-indicator ${!anyUnsaved ? 'saved' : 'pending'}" style="margin-right: 8px;">💾</span>
+                <button class="retro-btn btn-save-group" data-group-name="${groupName}" style="padding: 12px 32px; font-size: 14px; cursor: pointer;">
+                    ${!anyUnsaved ? 'GRUPO ACTUALIZADO' : 'GUARDAR GRUPO'}
                 </button>
-            \`;
+            `;
             groupContainer.appendChild(saveGroupBtnContainer);
         }
         
