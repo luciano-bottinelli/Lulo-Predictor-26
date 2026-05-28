@@ -2339,8 +2339,7 @@ function renderProfileStats() {
     const exactCount = userToView.exactMatches;
     const outcomeCount = userToView.outcomeMatches;
     
-    document.getElementById('stat-matches-predicted').innerText = `${predictedCount} / ${totalMatches}`;
-    document.getElementById('bar-predicted').style.width = `${(predictedCount / totalMatches) * 100}%`;
+    document.getElementById('stat-total-points').innerText = userToView.points;
     
     document.getElementById('stat-matches-exact').innerText = exactCount;
     document.getElementById('stat-percent-exact').innerText = `${exactCount} aciertos exactos`;
