@@ -1370,6 +1370,14 @@ function renderBracketRound() {
                 // Verificar si todo está completo antes de subir
                 if (isRoundCompleteCheck) {
                     Sound.playVictory();
+                    
+                    // Guardar el campeón automáticamente según el resultado de la final
+                    const finalMatchPred = state.currentUser.bracketPredictions['M_F'];
+                    if (finalMatchPred && finalMatchPred.winner) {
+                        if (!state.currentUser.specialPredictions) state.currentUser.specialPredictions = {};
+                        state.currentUser.specialPredictions.champion = finalMatchPred.winner;
+                    }
+
                     if (!window.confetti) {
                         const script = document.createElement('script');
                         script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
@@ -2347,11 +2355,18 @@ function renderProfileStats() {
     
     // Cargar predicciones especiales fuertes
     const spec = userToView.specialPredictions || {};
+    let champion = spec.champion;
+    
+    // Fallback: si no subió las predicciones, pero tiene la final guardada
+    if (!champion && userToView.bracketPredictions && userToView.bracketPredictions['M_F']) {
+        champion = userToView.bracketPredictions['M_F'].winner;
+    }
+
     const predsHTML = `
-        <div style="font-size: 11px; margin-bottom: 8px;">👑 Campeón: <strong class="text-yellow">${spec.champion || "No elegido"}</strong></div>
-        <div style="font-size: 11px; margin-bottom: 8px;">👟 Máx. Goleador: <strong class="text-cyan">${spec.scorer || "No elegido"}</strong></div>
-        <div style="font-size: 11px; margin-bottom: 8px;">🎯 Máx. Asistidor: <strong class="text-green">${spec.assister || "No elegido"}</strong></div>
-        <div style="font-size: 11px;">⭐ MVP: <strong class="text-yellow">${spec.mvp || "No elegido"}</strong></div>
+        <div style="font-size: 14px; margin-bottom: 12px;">👑 Campeón: <strong class="text-yellow">${champion || "No elegido"}</strong></div>
+        <div style="font-size: 14px; margin-bottom: 12px;">👟 Máx. Goleador: <strong class="text-cyan">${spec.scorer || "Próximamente"}</strong></div>
+        <div style="font-size: 14px; margin-bottom: 12px;">🎯 Máx. Asistidor: <strong class="text-green">${spec.assister || "Próximamente"}</strong></div>
+        <div style="font-size: 14px;">⭐ MVP: <strong class="text-yellow">${spec.mvp || "Próximamente"}</strong></div>
     `;
     const predsContainer = document.getElementById('profile-special-preds');
     if (predsContainer) predsContainer.innerHTML = predsHTML;
