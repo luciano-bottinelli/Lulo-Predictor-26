@@ -60,7 +60,6 @@
                 <span class="logo-prode">LULO PREDICTOR '26</span>
             </div>
             <div class="header-controls">
-                <button id="btn-open-api-config" class="retro-btn small-btn" title="Configurar conexión API real">🔧 CONEXIÓN API</button>
                 <button id="toggle-crt" class="retro-btn small-btn active-state" title="Alternar Efecto CRT Monitor">CRT: ON</button>
                 <button id="toggle-sound" class="retro-btn small-btn active-state" title="Alternar Sonido 8-bits">SONIDO: ON</button>
             </div>
@@ -166,28 +165,16 @@
                         
                         <div class="form-group">
                             <label>FOTO DE PERFIL DEL MÁNAGER:</label>
-                            <div class="avatar-source-options">
-                                <button type="button" id="btn-source-predefined" class="retro-btn small-btn active-state">AVATARES CLÁSICOS</button>
-                                <button type="button" id="btn-source-custom" class="retro-btn small-btn">📂 SUBIR DE GALERÍA</button>
-                            </div>
-                            
-                            <!-- 1. Panel de Avatares Predefinidos -->
-                            <div id="predefined-avatars-panel" class="avatar-selector">
-                                <!-- Se llenará dinámicamente con JS -->
-                            </div>
-                            
-                            <!-- 2. Panel de Carga desde Galería -->
-                            <div id="custom-avatar-panel" class="custom-avatar-upload-panel hidden-panel">
-                                <label for="custom-avatar-file" class="custom-file-upload-box">
-                                    <span class="upload-icon">📁</span>
-                                    <span class="upload-text">SELECCIONAR FOTO DE GALERÍA</span>
-                                    <input type="file" id="custom-avatar-file" accept="image/*">
-                                </label>
-                                <div class="avatar-preview-wrapper">
-                                    <div class="avatar-preview-box">
-                                        <img id="custom-avatar-preview" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=100" alt="Vista Previa">
-                                    </div>
-                                    <span class="preview-lbl">VISTA PREVIA</span>
+                            <div class="avatar-onboarding-panel" style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
+                                <div class="avatar-preview-box" style="width: 80px; height: 80px; background-color: var(--black); border: 2px inset #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #000;">
+                                    <img id="onboard-avatar-preview" src="" alt="Vista Previa" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                                    <label for="custom-avatar-file" class="retro-btn small-btn text-center" style="display: block; cursor: pointer; text-align: center; line-height: 1.5; padding: 6px;">
+                                        📁 SUBIR DE GALERÍA
+                                    </label>
+                                    <input type="file" id="custom-avatar-file" accept="image/*" style="display: none;">
+                                    <button type="button" id="btn-remove-avatar" class="retro-btn small-btn">❌ SIN FOTO (VACIAR)</button>
                                 </div>
                             </div>
                         </div>
@@ -622,9 +609,10 @@
                                 <p class="text-yellow">Al guardar un resultado oficial, se calcularán las puntuaciones de todos los mánagers del ranking global y de los clanes al instante.</p>
                             </div>
 
-                            <div class="admin-actions-bar margin-top">
+                            <div class="admin-actions-bar margin-top" style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <button id="btn-admin-auto-simulate" class="retro-btn">Simular Grupos Oficiales Lógicamente</button>
                                 <button id="btn-admin-reset-results" class="retro-btn danger-btn">Reiniciar Resultados Oficiales del Torneo</button>
+                                <button id="btn-open-api-config" class="retro-btn active-state" style="background-color: var(--win-gray); color: var(--black); font-weight: bold;">🔧 CONFIGURAR API DE DATOS REALES</button>
                             </div>
 
                             <div class="admin-matches-list margin-top">

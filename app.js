@@ -4,13 +4,10 @@
 
 // ================= CONFIGURACIÓN Y ESTADO INICIAL =================
 
+const DEFAULT_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23888888" style="background:%23222222"><circle cx="50" cy="35" r="20"/><path d="M50 60c-25 0-35 15-35 25v5h70v-5c0-10-10-25-35-25z"/></svg>`;
+
 const CONFIG = {
-    AVATARS: [
-        { id: 0, name: "El Bilardo Retro", img: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=100&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" }, 
-        { id: 1, name: "Mánager de Traje", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-        { id: 2, name: "El Coco Táctico", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-        { id: 3, name: "Mánager Joven", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" }
-    ],
+    AVATARS: [],
     COUNTRIES: {
         ARG: { name: "Argentina", colors: { bg: "#74acdf", stripe: "#ffffff", sun: "#f9d149" } },
         VEN: { name: "Venezuela", colors: { yellow: "#fcd116", blue: "#003893", red: "#cf142b" } },
@@ -87,11 +84,11 @@ if (DATABASE_CONFIG.SUPABASE_URL && DATABASE_CONFIG.SUPABASE_ANON_KEY) {
 
 // Mánagers Simulados (CPU) que competirán con el usuario
 const CPU_PLAYERS = [
-    { email: "bilardo@cyber96.com", username: "Bilardo Master", teamName: "Narigón F.C.", avatar: 0, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
-    { email: "basile@coco90.com", username: "Basile Coco", teamName: "La Voz F.C.", avatar: 2, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
-    { email: "caruso@humo.com", username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: 3, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
-    { email: "tronco@futbol.com", username: "El Tronco", teamName: "Troncos Unidos", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
-    { email: "gold@predictor.com", username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: 1, avatarType: "predefined", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
+    { email: "bilardo@cyber96.com", username: "Bilardo Master", teamName: "Narigón F.C.", avatar: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "defensive", joinedDate: "2026/05/28" },
+    { email: "basile@coco90.com", username: "Basile Coco", teamName: "La Voz F.C.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "offensive", joinedDate: "2026/05/28" },
+    { email: "caruso@humo.com", username: "Caruso Salvador", teamName: "Vende Humo C.F.", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "draws", joinedDate: "2026/05/28" },
+    { email: "tronco@futbol.com", username: "El Tronco", teamName: "Troncos Unidos", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "random", joinedDate: "2026/05/28" },
+    { email: "gold@predictor.com", username: "Mánager IA Gold", teamName: "Cyber Fútbol 96", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", avatarType: "custom", isCPU: true, predictions: {}, points: 0, exactMatches: 0, outcomeMatches: 0, strategy: "logical", joinedDate: "2026/05/28" }
 ];
 
 // Estado global de la aplicación
@@ -104,7 +101,7 @@ let state = {
     crtEnabled: true,
     soundEnabled: true,
     authMode: "login",  
-    avatarSource: "predefined", 
+    avatarSource: "none", 
     tempCustomAvatarBase64: null,
     apiToken: "",
     bracketRound: "r32"  // Ronda activa del bracket: 'r32', 'r16', 'r8', 'r4', 'r2'
@@ -1437,13 +1434,11 @@ function setupNavigation() {
             document.getElementById('submit-auth-text').innerText = "CREAR CUENTA Y CONTINUAR";
             authToggleBtn.innerText = "¿Ya tienes cuenta? INICIA SESIÓN AQUÍ";
             document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> REGISTRO EN EL SISTEMA`;
-            document.getElementById('auth-input-label').innerText = "CORREO ELECTRÓNICO:";
         } else {
             state.authMode = "login";
             document.getElementById('submit-auth-text').innerText = "INICIAR SESIÓN";
             authToggleBtn.innerText = "¿No tienes cuenta? REGÍSTRATE AQUÍ";
             document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR`;
-            document.getElementById('auth-input-label').innerText = "NOMBRE DE USUARIO:";
         }
     });
 
@@ -1486,12 +1481,12 @@ function setupNavigation() {
             }
             
         } else {
-            // REGISTRO: El usuario ingresa su Correo Electrónico
-            const emailInput = inputVal.toLowerCase();
-            let userObj = state.users.find(u => u.email && u.email.toLowerCase() === emailInput && !u.isCPU);
+            // REGISTRO: El usuario ingresa su Nombre de Usuario y Contraseña
+            const usernameInput = inputVal;
+            let userObj = state.users.find(u => u.username && u.username.toLowerCase() === usernameInput.toLowerCase() && !u.isCPU);
             
             if (userObj) {
-                showToast("El correo ya está registrado");
+                showToast("El mánager ya está registrado");
                 Sound.playError();
                 return;
             }
@@ -1500,12 +1495,12 @@ function setupNavigation() {
             const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
             
             userObj = {
-                email: emailInput,
-                username: "", // Se elige en onboarding
+                email: usernameInput, // Establecemos email igual a username para máxima compatibilidad
+                username: usernameInput,
                 password: password,
                 teamName: "",
-                avatar: 0,
-                avatarType: "predefined",
+                avatar: "",
+                avatarType: "none",
                 predictions: {},
                 bracketPredictions: {},
                 specialPredictions: { finalist1: "", finalist2: "", champion: "", scorer: "", assister: "" },
@@ -1616,23 +1611,16 @@ function setupNavigation() {
         }, 1000);
     });
     
-    // Manejar Origen de Avatar en Onboarding
-    document.getElementById('btn-source-predefined').addEventListener('click', () => {
-        state.avatarSource = "predefined";
+    // Manejar Quitar Foto / Sin Foto en Onboarding
+    document.getElementById('btn-remove-avatar').addEventListener('click', () => {
         Sound.playClick();
-        document.getElementById('btn-source-predefined').classList.add('active-state');
-        document.getElementById('btn-source-custom').classList.remove('active-state');
-        document.getElementById('predefined-avatars-panel').classList.remove('hidden-panel');
-        document.getElementById('custom-avatar-panel').classList.add('hidden-panel');
-    });
-    
-    document.getElementById('btn-source-custom').addEventListener('click', () => {
-        state.avatarSource = "custom";
-        Sound.playClick();
-        document.getElementById('btn-source-custom').classList.add('active-state');
-        document.getElementById('btn-source-predefined').classList.remove('active-state');
-        document.getElementById('custom-avatar-panel').classList.remove('hidden-panel');
-        document.getElementById('predefined-avatars-panel').classList.add('hidden-panel');
+        if (state.currentUser) {
+            state.currentUser.avatar = '';
+            state.currentUser.avatarType = 'none';
+        }
+        state.tempCustomAvatarBase64 = null;
+        document.getElementById('onboard-avatar-preview').src = DEFAULT_AVATAR;
+        showToast("Foto Removida");
     });
     
     document.getElementById('custom-avatar-file').addEventListener('change', handleCustomAvatarUpload);
@@ -1656,14 +1644,12 @@ function setupNavigation() {
         state.currentUser.username = chosenUsername;
         state.currentUser.teamName = teamName;
         
-        if (state.avatarSource === 'custom' && state.tempCustomAvatarBase64) {
+        if (state.tempCustomAvatarBase64) {
             state.currentUser.avatar = state.tempCustomAvatarBase64;
             state.currentUser.avatarType = 'custom';
-        } else {
-            const selectedDiv = document.querySelector('#predefined-avatars-panel .avatar-option.selected');
-            const avatarId = selectedDiv ? parseInt(selectedDiv.dataset.avatarId) : 0;
-            state.currentUser.avatar = avatarId;
-            state.currentUser.avatarType = 'predefined';
+        } else if (state.currentUser.avatarType !== 'custom') {
+            state.currentUser.avatar = '';
+            state.currentUser.avatarType = 'none';
         }
         
         generateCPUPredictions();
@@ -1712,7 +1698,6 @@ function setupNavigation() {
         document.getElementById('submit-auth-text').innerText = "INICIAR SESIÓN";
         document.getElementById('btn-toggle-auth-mode').innerText = "¿No tienes cuenta? REGÍSTRATE AQUÍ";
         document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR`;
-        document.getElementById('auth-input-label').innerText = "NOMBRE DE USUARIO:";
     });
     
     // CLANES: Acciones de botones
@@ -1890,27 +1875,14 @@ function handleCustomAvatarUpload(e) {
     const reader = new FileReader();
     reader.onload = function(evt) {
         state.tempCustomAvatarBase64 = evt.target.result;
-        document.getElementById('custom-avatar-preview').src = evt.target.result;
+        document.getElementById('onboard-avatar-preview').src = evt.target.result;
+        if (state.currentUser) {
+            state.currentUser.avatar = evt.target.result;
+            state.currentUser.avatarType = 'custom';
+        }
         showToast("Foto de Galería Cargada");
     };
     reader.readAsDataURL(file);
-}
-
-function renderPredefinedAvatars() {
-    const container = document.getElementById('predefined-avatars-panel');
-    container.innerHTML = '';
-    CONFIG.AVATARS.forEach((avatar, idx) => {
-        const div = document.createElement('div');
-        div.className = `avatar-option ${idx === 0 ? 'selected' : ''}`;
-        div.dataset.avatarId = avatar.id;
-        div.innerHTML = `<img src="${avatar.img}" alt="${avatar.name}">`;
-        div.addEventListener('click', () => {
-            document.querySelectorAll('#predefined-avatars-panel .avatar-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
-            Sound.playClick();
-        });
-        container.appendChild(div);
-    });
 }
 
 function transitionToOnboarding() {
@@ -1923,7 +1895,13 @@ function transitionToOnboarding() {
     document.getElementById('onboard-username').value = uName;
     document.getElementById('onboard-username').readOnly = uName ? true : false; 
     document.getElementById('onboard-team-name').value = '';
-    document.getElementById('btn-source-predefined').click();
+    
+    // Reset avatar preview to silhouette by default
+    document.getElementById('onboard-avatar-preview').src = DEFAULT_AVATAR;
+    if (state.currentUser) {
+        state.currentUser.avatar = '';
+        state.currentUser.avatarType = 'none';
+    }
 }
 
 function transitionToDashboard() {
@@ -1936,6 +1914,48 @@ function transitionToDashboard() {
     
     document.querySelector('[data-tab="matches-tab"]').click();
     updateManagerUIStats();
+}
+
+function updateManagerUIStats() {
+    if (!state.currentUser) return;
+    
+    // 1. Avatar
+    const avatarEl = document.getElementById('manager-profile-avatar');
+    if (avatarEl) {
+        avatarEl.src = state.currentUser.avatarType === 'custom' ? state.currentUser.avatar : DEFAULT_AVATAR;
+    }
+    
+    // 2. Team Name
+    const teamEl = document.getElementById('manager-profile-team');
+    if (teamEl) {
+        teamEl.innerText = state.currentUser.teamName ? state.currentUser.teamName.toUpperCase() : "C.A. LULO";
+    }
+    
+    // 3. Manager Name
+    const nameEl = document.getElementById('manager-profile-name');
+    if (nameEl) {
+        nameEl.innerText = state.currentUser.username;
+    }
+    
+    // 4. Total Points
+    const pointsEl = document.getElementById('manager-total-points');
+    if (pointsEl) {
+        pointsEl.innerText = String(state.currentUser.points).padStart(3, '0');
+    }
+    
+    // 5. Rank / Position
+    const rankEl = document.getElementById('manager-rank-val');
+    if (rankEl) {
+        const sortedUsers = [...state.users].sort((a,b) => b.points - a.points || b.exactMatches - a.exactMatches);
+        const rank = sortedUsers.findIndex(u => u.username === state.currentUser.username) + 1;
+        rankEl.innerText = rank > 0 ? `${rank}º` : "1º";
+    }
+    
+    // 6. Exact Matches
+    const exactsEl = document.getElementById('manager-exacts-val');
+    if (exactsEl) {
+        exactsEl.innerText = state.currentUser.exactMatches;
+    }
 }
 
 // ================= SISTEMA DE CLANES =================
@@ -1994,7 +2014,7 @@ function renderActiveClanLeaderboard() {
             tr.className = 'user-row';
         }
         
-        let avatarImg = user.avatarType === 'custom' ? user.avatar : (CONFIG.AVATARS.find(a => a.id === user.avatar)?.img || CONFIG.AVATARS[0].img);
+        let avatarImg = user.avatarType === 'custom' ? user.avatar : DEFAULT_AVATAR;
         const matchesPlayed = state.matches.filter(m => m.played && user.predictions[m.id]?.saved).length;
         
         tr.innerHTML = `
@@ -2095,7 +2115,7 @@ function renderProfileStats() {
     if (!state.currentUser) return;
     
     const avatarEl = document.getElementById('profile-large-avatar');
-    avatarEl.src = state.currentUser.avatarType === 'custom' ? state.currentUser.avatar : CONFIG.AVATARS.find(a => a.id === state.currentUser.avatar).img;
+    avatarEl.src = state.currentUser.avatarType === 'custom' ? state.currentUser.avatar : DEFAULT_AVATAR;
     
     document.getElementById('profile-large-name').innerText = state.currentUser.username;
     document.getElementById('profile-large-team').innerText = state.currentUser.teamName.toUpperCase();
@@ -2159,7 +2179,7 @@ function renderStandings() {
             tr.className = 'user-row';
         }
         
-        let avatarImg = user.avatarType === 'custom' ? user.avatar : (CONFIG.AVATARS.find(a => a.id === user.avatar)?.img || CONFIG.AVATARS[0].img);
+        let avatarImg = user.avatarType === 'custom' ? user.avatar : DEFAULT_AVATAR;
         const matchesPlayed = state.matches.filter(m => m.played && user.predictions[m.id]?.saved).length;
         
         tr.innerHTML = `
@@ -2386,7 +2406,6 @@ function renderMatches() {
 
 window.addEventListener('DOMContentLoaded', () => {
     loadDatabase();
-    renderPredefinedAvatars();
     setupNavigation();
     
     // Si ya existe sesión activa
