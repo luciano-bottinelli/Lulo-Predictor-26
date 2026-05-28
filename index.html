@@ -283,7 +283,6 @@
                             <button class="sub-tab-btn" data-round="r8">CUARTOS (8)</button>
                             <button class="sub-tab-btn" data-round="r4">SEMIS (4)</button>
                             <button class="sub-tab-btn" data-round="r2">FINAL 🏆</button>
-                            <button class="sub-tab-btn" data-round="premios">PUNTOS 💯</button>
                         </div>
 
                         <!-- Grilla de partidos de la ronda seleccionada -->
@@ -291,22 +290,7 @@
                             <!-- Generado dinámicamente con JS -->
                         </div>
 
-                        <!-- SECCIÓN ESPECIAL: PREMIOS DE CAMPEONATO -->
-                        <div id="championship-rewards-panel" class="retro-window margin-top hidden-panel">
-                            <div class="window-title-bar">
-                                <span class="window-title-text"><span class="icon-trophy">💯</span> SISTEMA DE PUNTOS OFICIAL</span>
-                            </div>
-                            <div class="window-content">
-                                <div class="retro-rules-panel retro-panel">
-                                    <ul style="font-size:12px; line-height: 1.8;">
-                                        <li>🎯 <strong class="text-yellow">Fase de Grupos:</strong> Acierto Exacto = <span class="text-cyan">+15 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+5 PUNTOS</span>.</li>
-                                        <li>⚔️ <strong class="text-yellow">Fase Eliminatoria:</strong> Acierto Exacto = <span class="text-cyan">+30 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+10 PUNTOS</span>.</li>
-                                        <li>🏅 <strong class="text-yellow">Bonos Campeonato:</strong> Finalistas (ambos) = <span class="text-cyan">+20 PTS</span> | Campeón = <span class="text-yellow">+80 PTS</span> | MVP, Goleador o Asistidor = <span class="text-green">+40 PTS c/u</span>.</li>
-                                        <li>⭐ <strong class="text-yellow">Pleno de Grupo:</strong> Predecir los 4 equipos de un grupo en orden exacto = <span class="text-cyan">+20 PTS</span>.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Fin de Eliminatorias -->
                     </div>
                 </section>
 
@@ -316,6 +300,7 @@
                     <div class="sub-tabs-bar">
                         <button class="sub-tab-btn active" data-subtab="global-standings-view">🏆 RANKING GLOBAL</button>
                         <button class="sub-tab-btn" data-subtab="clans-standings-view">👥 CLANES DE AMIGOS</button>
+                        <button class="sub-tab-btn" data-subtab="points-rules-view">💯 REGLAMENTO</button>
                     </div>
 
                     <!-- VISTA DE RANKING GLOBAL -->
@@ -439,6 +424,25 @@
                                 </div>
                             </div>
 
+                        </div>
+                    </div>
+
+                    <!-- VISTA DE REGLAMENTO DE PUNTOS -->
+                    <div id="points-rules-view" class="sub-tab-content inactive-subtab">
+                        <div class="retro-window">
+                            <div class="window-title-bar">
+                                <span class="window-title-text"><span class="icon-trophy">💯</span> SISTEMA DE PUNTOS OFICIAL</span>
+                            </div>
+                            <div class="window-content" style="max-width: 700px; margin: 0 auto; padding: 20px;">
+                                <div class="retro-rules-panel retro-panel">
+                                    <ul style="font-size:12px; line-height: 1.8;">
+                                        <li>🎯 <strong class="text-yellow">Fase de Grupos:</strong> Acierto Exacto = <span class="text-cyan">+15 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+5 PUNTOS</span>.</li>
+                                        <li>⚔️ <strong class="text-yellow">Fase Eliminatoria:</strong> Acierto Exacto = <span class="text-cyan">+30 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+10 PUNTOS</span>.</li>
+                                        <li>🏅 <strong class="text-yellow">Bonos Campeonato:</strong> Finalistas (ambos) = <span class="text-cyan">+20 PTS</span> | Campeón = <span class="text-yellow">+80 PTS</span> | MVP, Goleador o Asistidor = <span class="text-green">+40 PTS c/u</span>.</li>
+                                        <li>⭐ <strong class="text-yellow">Pleno de Grupo:</strong> Predecir los 4 equipos de un grupo en orden exacto = <span class="text-cyan">+20 PTS</span>.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

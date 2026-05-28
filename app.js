@@ -1446,24 +1446,7 @@ function renderBracketRound() {
             Sound.playBloop();
         });
     });
-    
-    // Mostrar el panel de premios si la fase es "premios", sino ocultarlo
-    const rewardsPanel = document.getElementById('championship-rewards-panel');
-    const deckPanel = document.getElementById('bracket-round-deck');
-    
-    if (state.bracketRound === 'premios') {
-        rewardsPanel.classList.remove('hidden-panel');
-        deckPanel.style.display = 'none';
-        populateSpecialPredictionsForm();
-    } else {
-        rewardsPanel.classList.add('hidden-panel');
-        deckPanel.style.display = '';
-    }
-}
-
-// Rellenar los dropdowns del formulario de campeonato
-function populateSpecialPredictionsForm() {
-    // El formulario de premios se movió a la final, esta pestaña ahora es solo informativa para los puntos
+    // (El panel de premios fue trasladado a Clasificaciones)
 }
 
 function refreshActiveTab() {
