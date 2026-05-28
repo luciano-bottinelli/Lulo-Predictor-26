@@ -2369,17 +2369,17 @@ function renderMatches() {
             `;
         }
         
-            const stadiums = ["Azteca", "MetLife", "SoFi", "Hard Rock", "AT&T", "Lumen", "BMO Field", "BC Place"];
+            const stadiums = ["Azteca", "MetLife", "SoFi", "Hard Rock", "AT&T", "Lumen", "BMO", "BC Place"];
             const stadium = stadiums[match.id % stadiums.length];
-            const dateStr = match.date.replace(/^GRUPO\s+[A-L]\s*-\s*/i, '').replace(/,\s*2026/g, '').replace(/\s*-\s*/, ' ');
+            const dateStr = match.date.replace(/^GRUPO\s+[A-L]\s*-\s*/i, '').replace(/ de Junio/i, ' Jun').replace(/,\s*2026/g, '').replace(/\s*-\s*/, ' ');
             
             card.innerHTML = `
-            <div class="match-card-header" style="justify-content: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 8px;">
+            <div class="match-card-header" style="justify-content: center; gap: 4px; white-space: nowrap; overflow: hidden; padding-bottom: 8px; font-size: 8px;">
                 <span class="text-yellow" style="font-weight:bold;">${match.stage.replace('GROUP_','GRUPO ')}</span>
                 <span style="color: #555;">|</span>
                 <span style="color: #ddd;">${dateStr}</span>
                 <span style="color: #555;">|</span>
-                <span style="color: #aaa;">${stadium}</span>
+                <span style="color: #aaa; text-overflow: ellipsis; overflow: hidden;">${stadium}</span>
             </div>
             <div class="match-card-body">
                 <div class="match-team">
