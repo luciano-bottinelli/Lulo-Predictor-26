@@ -669,6 +669,13 @@ async function syncWithSupabase() {
                 }
             });
             
+            // Si el usuario actual u otros usuarios locales no están en la nube (falló inserción), preservarlos
+            state.users.forEach(localU => {
+                if (!newUsersList.some(u => u.email === localU.email) && !localU.isCPU) {
+                    newUsersList.push(localU);
+                }
+            });
+            
             // Si falta alguna CPU por defecto, la agregamos
             CPU_PLAYERS.forEach(cpu => {
                 if (!newUsersList.some(u => u.email === cpu.email)) {
@@ -2363,9 +2370,10 @@ function renderMatches() {
         }
         
         card.innerHTML = `
-            <div class="match-card-header">
-                <span>${match.stage.replace('GROUP_','GRUPO ')}</span>
-                <span>${match.date}</span>
+            <div class="match-card-header" style="justify-content: center; gap: 6px;">
+                <span class="text-yellow">${match.stage.replace('GROUP_','GRUPO ')}</span>
+                <span style="color: #666;">|</span>
+                <span style="color: #aaa;">${match.date.replace(/^GRUPO\s+[A-L]\s*-\s*/, '').replace(' - ', ' | ')}</span>
             </div>
             <div class="match-card-body">
                 <div class="match-team">
