@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LULO PREDICTOR - Copa del Mundo 2026</title>
+    <!-- Google Fonts: VT323 for retro numbers/menus, Press Start 2P for small retro pixel text, Outfit for clean body text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="crt-active">
+    <!-- Overlay CRT para efecto monitor de tubo -->
+    <div class="crt-overlay"></div>
+    <div class="crt-scanlines"></div>
+
+    <div id="game-container">
+        <!-- PANTALLA DE CONTROL Y AJUSTES RETRO DE LA PARTE SUPERIOR -->
+        <header class="retro-header-bar">
+            <div class="header-logo">
+                <span class="logo-pc">PC</span>
+                <span class="logo-prode">LULO PREDICTOR '26</span>
+            </div>
+            <div class="header-controls">
+                <button id="btn-open-api-config" class="retro-btn small-btn" title="Configurar conexión API real">🔧 CONEXIÓN API</button>
+                <button id="toggle-crt" class="retro-btn small-btn active-state" title="Alternar Efecto CRT Monitor">CRT: ON</button>
+                <button id="toggle-sound" class="retro-btn small-btn active-state" title="Alternar Sonido 8-bits">SONIDO: ON</button>
+            </div>
+        </header>
+
+        <!-- CAJA DE CONFIGURACIÓN DE API (Oculta por defecto, estilo Windows 95) -->
+        <div id="api-config-modal" class="retro-window max-w-md hidden-panel" style="position: fixed; top: 20%; left: 50%; transform: translateX(-50%); z-index: 10000; box-shadow: 10px 10px 0 var(--black);">
+            <div class="window-title-bar">
+                <span class="window-title-text"><span class="icon-wrench">🔧</span> CONFIGURAR CONEXIÓN REAL-TIME</span>
+                <button class="window-close-btn" id="btn-close-api-config" style="cursor: pointer;">X</button>
+            </div>
+            <div class="window-content">
+                <div class="admin-explanation retro-panel" style="margin-bottom: 12px; font-size: 11px;">
+                    <p>Ingresa tu API-Key de <strong>Football-Data.org</strong> para sincronizar los marcadores en vivo con el Mundial Real de la FIFA 2026.</p>
+                </div>
+                <div class="form-group">
+                    <label for="api-token-input">API TOKEN (Football-Data.org):</label>
+                    <input type="password" id="api-token-input" class="retro-input" placeholder="Ingresa tu token aquí...">
+                </div>
+                <div class="clan-actions-buttons margin-top">
+                    <button id="btn-save-api-token" class="retro-btn small-btn" style="width: 100%; margin-bottom: 8px;">GUARDAR TOKEN</button>
+                    <button id="btn-sync-api-now" class="retro-btn small-btn active-state" style="width: 100%;">⚡ SINCRONIZAR CON LA REALIDAD AHORA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PANTALLA DE LOGIN / REGISTRO ================= -->
+        <main id="login-screen" class="active-screen">
+            <div class="retro-window max-w-md">
+                <div class="window-title-bar">
+                    <span class="window-title-text" id="login-window-title"><span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR</span>
+                    <button class="window-close-btn" disabled>X</button>
+                </div>
+                <div class="window-content text-center">
+                    <h1 class="game-main-title">LULO PREDICTOR</h1>
+                    <p class="game-subtitle">MUNDIAL 2026</p>
+                    
+                    <div class="intro-graphics">
+                        <div class="retro-pitch">
+                            <div class="pitch-line"></div>
+                            <div class="pitch-circle"></div>
+                            <div id="spinning-ball" class="retro-ball">⚽</div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Acceso por Correo y Contraseña -->
+                    <form id="auth-form" class="retro-form">
+                        <div class="form-group">
+                            <label for="auth-email">CORREO ELECTRÓNICO:</label>
+                            <input type="email" id="auth-email" class="retro-input" required placeholder="correo@ejemplo.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="auth-password">CONTRASEÑA:</label>
+                            <input type="password" id="auth-password" class="retro-input" required placeholder="••••••••" autocomplete="current-password">
+                        </div>
+
+                        <!-- Acciones del Formulario -->
+                        <div class="auth-buttons-group">
+                            <button type="submit" id="btn-submit-auth" class="retro-btn big-btn">
+                                <span id="submit-auth-text">INICIAR SESIÓN</span>
+                            </button>
+                            <button type="button" id="btn-toggle-auth-mode" class="retro-btn small-btn" style="width: 100%; margin-top: 8px;">
+                                ¿No tienes cuenta? REGÍSTRATE AQUÍ
+                            </button>
+                        </div>
+
+                        <div class="auth-divider">
+                            <span>O TAMBIÉN</span>
+                        </div>
+
+                        <!-- Botón de Google Sign-in -->
+                        <button type="button" id="btn-google-auth" class="retro-btn google-btn">
+                            <span class="google-icon">G</span> CONECTAR CON GOOGLE
+                        </button>
+                    </form>
+
+                    <div class="retro-footer-notes">
+                        <p>© 1996 Lulo Software Inc. - Version 6.0 Deluxe</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ================= PANTALLA DE ONBOARDING (CREAR FICHA) ================= -->
+        <main id="onboarding-screen" class="inactive-screen">
+            <div class="retro-window max-w-md">
+                <div class="window-title-bar">
+                    <span class="window-title-text"><span class="icon-manager">👤</span> CONFIGURACIÓN DE MANAGER</span>
+                </div>
+                <div class="window-content">
+                    <h2 class="section-title text-center" style="font-family: var(--font-pixel-heading); font-size: 14px; margin-bottom: 12px; color: var(--win-blue);">CREAR FICHA DE MANAGER</h2>
+                    <p class="text-center" style="font-size: 12px; margin-bottom: 20px; font-weight: 500;">Completa tus datos para ingresar al campeonato del Mundial 2026.</p>
+                    
+                    <form id="onboarding-form" class="retro-form">
+                        <div class="form-group">
+                            <label for="onboard-username">NOMBRE DEL MÁNAGER:</label>
+                            <input type="text" id="onboard-username" class="retro-input" required maxlength="15" placeholder="Escribe tu nombre..." autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="onboard-team-name">NOMBRE DEL EQUIPO:</label>
+                            <input type="text" id="onboard-team-name" class="retro-input" required maxlength="20" placeholder="Ej: Deportivo Lulo..." autocomplete="off">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>FOTO DE PERFIL DEL MÁNAGER:</label>
+                            <div class="avatar-source-options">
+                                <button type="button" id="btn-source-predefined" class="retro-btn small-btn active-state">AVATARES CLÁSICOS</button>
+                                <button type="button" id="btn-source-custom" class="retro-btn small-btn">📂 SUBIR DE GALERÍA</button>
+                            </div>
+                            
+                            <!-- 1. Panel de Avatares Predefinidos -->
+                            <div id="predefined-avatars-panel" class="avatar-selector">
+                                <!-- Se llenará dinámicamente con JS -->
+                            </div>
+                            
+                            <!-- 2. Panel de Carga desde Galería -->
+                            <div id="custom-avatar-panel" class="custom-avatar-upload-panel hidden-panel">
+                                <label for="custom-avatar-file" class="custom-file-upload-box">
+                                    <span class="upload-icon">📁</span>
+                                    <span class="upload-text">SELECCIONAR FOTO DE GALERÍA</span>
+                                    <input type="file" id="custom-avatar-file" accept="image/*">
+                                </label>
+                                <div class="avatar-preview-wrapper">
+                                    <div class="avatar-preview-box">
+                                        <img id="custom-avatar-preview" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=100" alt="Vista Previa">
+                                    </div>
+                                    <span class="preview-lbl">VISTA PREVIA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 12px;">
+                            <button type="submit" id="btn-confirm-onboard" class="retro-btn big-btn">
+                                <span>COMPLETAR FICHA Y ENTRAR</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- ================= PANTALLA PRINCIPAL (DASHBOARD) ================= -->
+        <main id="dashboard-screen" class="inactive-screen">
+            <!-- Barra de estado del Manager -->
+            <div class="manager-status-bar retro-panel">
+                <div class="manager-info">
+                    <div class="manager-avatar-container">
+                        <img id="manager-profile-avatar" src="" alt="Avatar" class="manager-avatar-img">
+                    </div>
+                    <div class="manager-text">
+                        <div id="manager-profile-team" class="profile-team-name">C.A. LULO</div>
+                        <div class="profile-manager-details">
+                            Mánager: <span id="manager-profile-name" class="text-yellow">Luchito</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="manager-stats-summary">
+                    <div class="stat-item">
+                        <span class="stat-label">PUNTOS TOTALES</span>
+                        <span id="manager-total-points" class="stat-val text-yellow score-counter">000</span>
+                    </div>
+                    <div class="stat-item border-left">
+                        <span class="stat-label">POSICIÓN TABLA</span>
+                        <span id="manager-rank-val" class="stat-val text-green">1º</span>
+                    </div>
+                    <div class="stat-item border-left hidden-mobile">
+                        <span class="stat-label">ACIERTOS EXACTOS</span>
+                        <span id="manager-exacts-val" class="stat-val text-cyan">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación por pestañas al estilo PC Fútbol -->
+            <nav class="retro-tabs-nav">
+                <button class="tab-btn active" data-tab="matches-tab">
+                    <span class="tab-icon">⚽</span> GRUPOS
+                </button>
+                <button class="tab-btn" data-tab="bracket-tab" id="tab-bracket-btn">
+                    <span class="tab-icon">🌳</span> ELIMINATORIAS
+                </button>
+                <button class="tab-btn" data-tab="standings-tab">
+                    <span class="tab-icon">🏆</span> CLASIFICACIONES
+                </button>
+                <button class="tab-btn" data-tab="profile-tab">
+                    <span class="tab-icon">👤</span> MI HISTORIAL
+                </button>
+                <button class="tab-btn" data-tab="admin-tab" id="tab-admin-btn">
+                    <span class="tab-icon">🔧</span> PANEL ADMIN
+                </button>
+                <button id="btn-logout" class="tab-btn logout-btn">
+                    <span class="tab-icon">💾</span> SALIR
+                </button>
+            </nav>
+
+            <!-- CONTENIDO DE LAS PESTAÑAS -->
+            <div class="tabs-content-container">
+
+                <!-- 1. PESTAÑA: PARTIDOS DE GRUPOS -->
+                <section id="matches-tab" class="tab-content active-tab">
+                    <div class="tab-header-actions">
+                        <div class="filter-group">
+                            <span class="filter-label">FILTRAR JORNADA MUNDIAL:</span>
+                            <div class="custom-select-wrapper">
+                                <select id="match-stage-filter" class="retro-select">
+                                    <option value="ALL">TODOS LOS GRUPOS</option>
+                                    <option value="GROUP_A">GRUPO A</option>
+                                    <option value="GROUP_B">GRUPO B</option>
+                                    <option value="GROUP_C">GRUPO C</option>
+                                    <option value="GROUP_D">GRUPO D</option>
+                                    <option value="GROUP_E">GRUPO E</option>
+                                    <option value="GROUP_F">GRUPO F</option>
+                                    <option value="GROUP_G">GRUPO G</option>
+                                    <option value="GROUP_H">GRUPO H</option>
+                                    <option value="GROUP_I">GRUPO I</option>
+                                    <option value="GROUP_J">GRUPO J</option>
+                                    <option value="GROUP_K">GRUPO K</option>
+                                    <option value="GROUP_L">GRUPO L</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="quick-status-legend" style="gap: 16px;">
+                            <button id="btn-auto-predict-groups" class="retro-btn small-btn active-state">⚡ AUTOPREDICCIÓN RÁPIDA DE GRUPOS</button>
+                            <div class="legend-item"><span class="disk-indicator saved">💾</span> Guardado</div>
+                            <div class="legend-item"><span class="disk-indicator pending">💾</span> Pendiente</div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje informativo de progreso de grupos -->
+                    <div id="groups-progress-bar-container" class="retro-panel text-center" style="margin-bottom: 16px; padding: 8px; border-radius: 2px;">
+                        <span style="font-family: var(--font-pixel-heading); font-size: 7px; color: var(--yellow);">PROGRESO DE GRUPOS: <span id="groups-progress-text">0/72</span> PRONOSTICADOS</span>
+                        <div class="stat-bar-container" style="margin-top: 4px; height: 6px;"><div id="groups-progress-fill" class="stat-bar-fill" style="width: 0%;"></div></div>
+                    </div>
+
+                    <!-- Grilla de partidos -->
+                    <div id="matches-grid" class="matches-grid-layout">
+                        <!-- Generado por JS -->
+                    </div>
+                </section>
+
+                <!-- 2. PESTAÑA: FASE ELIMINATORIA (BRACKET MULTI-ROUND) -->
+                <section id="bracket-tab" class="tab-content inactive-tab">
+                    <!-- Bloqueo del Bracket si faltan predicciones de grupo -->
+                    <div id="bracket-locked-message" class="retro-panel text-center" style="padding: 48px 24px; min-height: 380px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px;">
+                        <span style="font-size: 64px;">🔒</span>
+                        <h2 style="font-family: var(--font-pixel-heading); font-size: 11px; color: var(--yellow);">FASE ELIMINATORIA BLOQUEADA</h2>
+                        <p style="font-size: 13px; font-weight: 500; max-width: 500px; line-height: 1.5;">Debes pronosticar los **72 partidos de la Fase de Grupos** para calcular las tablas de posiciones oficiales, los 8 mejores terceros clasificados y compilar tu árbol de cruces eliminatorios hipotéticos.</p>
+                        <button id="btn-bracket-unlock-shortcut" class="retro-btn margin-top">⚡ AUTOPREDICIR GRUPOS Y DESBLOQUEAR AHORA</button>
+                    </div>
+
+                    <!-- Contenedor del Bracket Activo -->
+                    <div id="bracket-active-container" class="hidden-panel">
+                        <!-- Selector de fase del bracket para visualización responsiva óptima -->
+                        <div class="sub-tabs-bar" id="bracket-round-selectors">
+                            <button class="sub-tab-btn active" data-round="r32">16AVOS DE FINAL (32)</button>
+                            <button class="sub-tab-btn" data-round="r16">8AVOS DE FINAL (16)</button>
+                            <button class="sub-tab-btn" data-round="r8">CUARTOS (8)</button>
+                            <button class="sub-tab-btn" data-round="r4">SEMIS (4)</button>
+                            <button class="sub-tab-btn" data-round="r2">FINAL & PREMIOS 🏆</button>
+                        </div>
+
+                        <!-- Grilla de partidos de la ronda seleccionada -->
+                        <div class="bracket-matches-deck" id="bracket-round-deck">
+                            <!-- Generado dinámicamente con JS -->
+                        </div>
+
+                        <!-- SECCIÓN ESPECIAL: PREMIOS DE CAMPEONATO (Solo visible en la ronda Final del bracket) -->
+                        <div id="championship-rewards-panel" class="retro-window margin-top hidden-panel">
+                            <div class="window-title-bar">
+                                <span class="window-title-text"><span class="icon-trophy">🏆</span> PREDICCIONES ESPECIALES DE CAMPEONATO</span>
+                            </div>
+                            <div class="window-content">
+                                <div class="admin-explanation retro-panel" style="margin-bottom: 16px; font-size: 12px;">
+                                    <p>¡Registra tus apuestas finales de campeonato para el Mundial 2026! Recibirás jugosos puntos de bono al finalizar la copa.</p>
+                                    <ul style="margin-left: 18px; margin-top: 6px; font-size: 11px;">
+                                        <li>👥 <strong class="text-cyan">Acertar 2 Finalistas correctos:</strong> <span class="text-cyan">+20 PUNTOS</span></li>
+                                        <li>🏆 <strong class="text-yellow">Acertar Campeón del Mundo:</strong> <span class="text-yellow">+35 PUNTOS</span></li>
+                                        <li>👟 <strong class="text-green">Acertar Máximo Goleador (Bota de Oro):</strong> <span class="text-green">+30 PUNTOS</span></li>
+                                        <li>🎯 <strong class="text-green">Acertar Máximo Asistidor:</strong> <span class="text-green">+30 PUNTOS</span></li>
+                                    </ul>
+                                </div>
+
+                                <form id="special-predictions-form" class="retro-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                                    <div class="form-group">
+                                        <label for="predict-finalist-1">SELECCIONAR FINALISTA A:</label>
+                                        <select id="predict-finalist-1" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
+                                            <!-- Cargado con JS -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="predict-finalist-2">SELECCIONAR FINALISTA B:</label>
+                                        <select id="predict-finalist-2" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
+                                            <!-- Cargado con JS -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="predict-champion">SELECCIONAR CAMPEÓN DEL MUNDO:</label>
+                                        <select id="predict-champion" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600; color: var(--win-blue);">
+                                            <!-- Cargado con JS -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="predict-scorer">👟 MÁXIMO GOLEADOR (BOTA DE ORO):</label>
+                                        <select id="predict-scorer" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
+                                            <option value="">-- Seleccionar Goleador --</option>
+                                            <option value="K. Mbappé">Kylian Mbappé (Francia)</option>
+                                            <option value="L. Messi">Lionel Messi (Argentina)</option>
+                                            <option value="E. Haaland">Erling Haaland (Noruega)</option>
+                                            <option value="Vinicius Jr.">Vinicius Jr. (Brasil)</option>
+                                            <option value="H. Kane">Harry Kane (Inglaterra)</option>
+                                            <option value="S. Rondón">Salomón Rondón (Venezuela)</option>
+                                            <option value="J. Bellingham">Jude Bellingham (Inglaterra)</option>
+                                            <option value="J. Alvarez">Julián Álvarez (Argentina)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="predict-assister">🎯 MÁXIMO ASISTIDOR DE LA COPA:</label>
+                                        <select id="predict-assister" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
+                                            <option value="">-- Seleccionar Asistidor --</option>
+                                            <option value="L. Messi">Lionel Messi (Argentina)</option>
+                                            <option value="K. De Bruyne">Kevin De Bruyne (Bélgica)</option>
+                                            <option value="Vinicius Jr.">Vinicius Jr. (Brasil)</option>
+                                            <option value="J. Musiala">Jamal Musiala (Alemania)</option>
+                                            <option value="A. Griezmann">Antoine Griezmann (Francia)</option>
+                                            <option value="Y. Soteldo">Yeferson Soteldo (Venezuela)</option>
+                                            <option value="B. Silva">Bernardo Silva (Portugal)</option>
+                                            <option value="B. Fernandes">Bruno Fernandes (Portugal)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-actions" style="grid-column: 1/-1;">
+                                        <button type="submit" id="btn-save-special-preds" class="retro-btn big-btn" style="padding: 10px 16px;">
+                                            <span>💾 GUARDAR APUESTAS DE CAMPEONATO</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. PESTAÑA: CLASIFICACIONES (LEADERBOARD GLOBAL & CLANES) -->
+                <section id="standings-tab" class="tab-content inactive-tab">
+                    <!-- Sub-pestañas para Global vs Clanes -->
+                    <div class="sub-tabs-bar">
+                        <button class="sub-tab-btn active" data-subtab="global-standings-view">🏆 RANKING GLOBAL</button>
+                        <button class="sub-tab-btn" data-subtab="clans-standings-view">👥 CLANES DE AMIGOS</button>
+                    </div>
+
+                    <!-- VISTA DE RANKING GLOBAL -->
+                    <div id="global-standings-view" class="sub-tab-content active-subtab">
+                        <div class="retro-window">
+                            <div class="window-title-bar">
+                                <span class="window-title-text"><span class="icon-trophy">🏆</span> TABLA OFICIAL GLOBAL DE MÁNAGERS</span>
+                            </div>
+                            <div class="window-content no-padding">
+                                <div class="table-responsive">
+                                    <table class="retro-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center" style="width: 80px;">POS</th>
+                                                <th>MÁNAGER / CLUB</th>
+                                                <th class="text-center" style="width: 80px;">PJ</th>
+                                                <th class="text-center text-cyan" style="width: 80px;" title="Marcador exacto (+15 / +18 pts)">EXACT</th>
+                                                <th class="text-center text-green" style="width: 80px;" title="Resultado acertado (+5 / +8 pts)">ACIER</th>
+                                                <th class="text-center text-yellow" style="width: 100px;">PUNTOS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="standings-table-body">
+                                            <!-- Generado por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VISTA DE CLANES DE AMIGOS -->
+                    <div id="clans-standings-view" class="sub-tab-content inactive-subtab">
+                        <div class="clans-layout">
+                            
+                            <!-- Panel Izquierdo: Gestión de Clanes -->
+                            <div class="clans-sidebar">
+                                <div class="retro-window">
+                                    <div class="window-title-bar">
+                                        <span class="window-title-text">👥 MIS CLANES</span>
+                                    </div>
+                                    <div class="window-content">
+                                        <div id="clans-list-container" class="clans-list">
+                                            <!-- Lista de clanes unidos -->
+                                        </div>
+                                        
+                                        <div class="clan-actions-buttons margin-top">
+                                            <button id="btn-open-create-clan" class="retro-btn small-btn" style="width: 100%; margin-bottom: 8px;">CREAR NUEVO CLAN</button>
+                                            <button id="btn-open-join-clan" class="retro-btn small-btn" style="width: 100%;">UNIRSE A UN CLAN</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modales / Paneles de Formulario en línea de Clanes (Estilo Windows 95) -->
+                                <div id="clan-create-panel" class="retro-window hidden-panel margin-top">
+                                    <div class="window-title-bar">
+                                        <span class="window-title-text">🆕 CREAR CLAN</span>
+                                        <button class="window-close-btn" id="btn-close-create-clan" style="cursor: pointer;">X</button>
+                                    </div>
+                                    <div class="window-content">
+                                        <div class="form-group">
+                                            <label for="new-clan-name">NOMBRE DEL CLAN:</label>
+                                            <input type="text" id="new-clan-name" class="retro-input" placeholder="Ej: Amigos de Lulo..." maxlength="20">
+                                        </div>
+                                        <button id="btn-submit-create-clan" class="retro-btn small-btn margin-top" style="width: 100%;">CREAR E INVITAR</button>
+                                    </div>
+                                </div>
+
+                                <div id="clan-join-panel" class="retro-window hidden-panel margin-top">
+                                    <div class="window-title-bar">
+                                        <span class="window-title-text">🔑 UNIRSE A CLAN</span>
+                                        <button class="window-close-btn" id="btn-close-join-clan" style="cursor: pointer;">X</button>
+                                    </div>
+                                    <div class="window-content">
+                                        <div class="form-group">
+                                            <label for="join-clan-code">CÓDIGO DEL CLAN:</label>
+                                            <input type="text" id="join-clan-code" class="retro-input" placeholder="Ej: LULO-583X" maxlength="15" style="text-transform: uppercase;">
+                                        </div>
+                                        <button id="btn-submit-join-clan" class="retro-btn small-btn margin-top" style="width: 100%;">UNIRSE AL GRUPO</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel Derecho: Leaderboard del Clan Activo -->
+                            <div class="clans-leaderboard-container">
+                                <div class="retro-window h-full">
+                                    <div class="window-title-bar">
+                                        <span class="window-title-text" id="clan-leaderboard-title">👥 SELECCIONA UN CLAN</span>
+                                    </div>
+                                    <div class="window-content no-padding" id="clan-leaderboard-empty">
+                                        <div class="text-center" style="padding: 40px 20px;">
+                                            <span style="font-size: 48px;">👥</span>
+                                            <h3 class="margin-top" style="font-family: var(--font-pixel-heading); font-size: 10px; color: var(--win-dark-gray);">NINGÚN CLAN SELECCIONADO</h3>
+                                            <p style="font-size: 12px; margin-top: 10px; font-weight: 500;">Crea un clan o únete a uno usando el código de tus amigos para ver la tabla comparativa privada.</p>
+                                        </div>
+                                    </div>
+                                    <div class="window-content no-padding hidden-panel" id="clan-leaderboard-active">
+                                        <div class="clan-header-info retro-panel" style="margin: 8px; display: flex; justify-content: space-between; align-items: center; border-radius: 2px;">
+                                            <div>
+                                                <h4 id="active-clan-title" style="font-family: var(--font-pixel-heading); font-size: 10px; color: var(--yellow);">NOMBRE DEL CLAN</h4>
+                                                <p style="font-size: 11px; margin-top: 4px;">Código de invitación: <strong id="active-clan-code" class="text-cyan">LULO-XXXX</strong></p>
+                                            </div>
+                                            <button id="btn-copy-clan-code" class="retro-btn small-btn">COPIAR CÓDIGO</button>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="retro-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" style="width: 60px;">POS</th>
+                                                        <th>MÁNAGER / CLUB</th>
+                                                        <th class="text-center" style="width: 80px;">PJ</th>
+                                                        <th class="text-center text-cyan" style="width: 80px;">EXACT</th>
+                                                        <th class="text-center text-yellow" style="width: 90px;">PUNTOS</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="clan-standings-table-body">
+                                                    <!-- Generado por JS -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. PESTAÑA: MI HISTORIAL & ESTADÍSTICAS -->
+                <section id="profile-tab" class="tab-content inactive-tab">
+                    <div class="profile-layout">
+                        <div class="profile-col-left">
+                            <div class="retro-window">
+                                <div class="window-title-bar">
+                                    <span class="window-title-text">👤 FICHA DEL MÁNAGER</span>
+                                </div>
+                                <div class="window-content text-center">
+                                    <div class="profile-card-badge">
+                                        <div class="avatar-large-container">
+                                            <img id="profile-large-avatar" src="" alt="Manager Avatar" class="profile-large-avatar-img">
+                                        </div>
+                                        <h3 id="profile-large-name" class="profile-manager-title">Luchito</h3>
+                                        <span id="profile-large-team" class="profile-team-badge">DEPORTIVO LULO</span>
+                                    </div>
+                                    <div class="profile-date-joined">
+                                        Fecha de Ingreso: <span class="text-yellow" id="manager-joined-date">2026/05/28</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="retro-window margin-top">
+                                <div class="window-title-bar">
+                                    <span class="window-title-text">🏅 VITRINA DE TROFEOS</span>
+                                </div>
+                                <div class="window-content">
+                                    <div id="trophies-container" class="trophies-grid">
+                                        <!-- Cargado con JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-col-right">
+                            <div class="retro-window h-full">
+                                <div class="window-title-bar">
+                                    <span class="window-title-text">📊 ESTADÍSTICAS DE RENDIMIENTO</span>
+                                </div>
+                                <div class="window-content">
+                                    <div class="retro-stats-grid">
+                                        <div class="stat-card">
+                                            <span class="stat-card-title">Grupos Pronosticados</span>
+                                            <span id="stat-matches-predicted" class="stat-card-val text-yellow">0/72</span>
+                                            <div class="stat-bar-container"><div id="bar-predicted" class="stat-bar-fill" style="width: 0%;"></div></div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <span class="stat-card-title">Aciertos Exactos</span>
+                                            <span id="stat-matches-exact" class="stat-card-val text-cyan">0</span>
+                                            <span id="stat-percent-exact" class="stat-card-sub text-gray">0 aciertos exactos</span>
+                                        </div>
+                                        <div class="stat-card">
+                                            <span class="stat-card-title">Aciertos Resultado</span>
+                                            <span id="stat-matches-outcome" class="stat-card-val text-green">0</span>
+                                            <span id="stat-percent-outcome" class="stat-card-sub text-gray">0 aciertos de ganador</span>
+                                        </div>
+                                        <div class="stat-card">
+                                            <span class="stat-card-title">Efectividad General</span>
+                                            <span id="stat-efficiency" class="stat-card-val text-yellow">0.0%</span>
+                                            <div class="stat-bar-container"><div id="bar-efficiency" class="stat-bar-fill yellow-bar" style="width: 0%;"></div></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="retro-rules-panel retro-panel margin-top">
+                                        <h4>REGLAMENTO OFICIAL DE PUNTOS:</h4>
+                                        <ul style="font-size:12px;">
+                                            <li>🎯 <strong class="text-yellow">Fase de Grupos:</strong> Acierto Exacto = <span class="text-cyan">+15 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+5 PUNTOS</span>.</li>
+                                            <li>⚔️ <strong class="text-yellow">Fase Eliminatoria:</strong> Acierto Exacto = <span class="text-cyan">+18 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+8 PUNTOS</span>.</li>
+                                            <li>🏅 <strong class="text-yellow">Bonos Campeonato:</strong> Finalistas acertados = <span class="text-cyan">+20 PTS</span> | Campeón acertado = <span class="text-yellow">+35 PTS</span> | Goleador/Asistidor = <span class="text-green">+30 PTS c/u</span>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. PESTAÑA: PANEL DE ADMINISTRADOR -->
+                <section id="admin-tab" class="tab-content inactive-tab">
+                    <div class="retro-window">
+                        <div class="window-title-bar">
+                            <span class="window-title-text">🔧 CENTRO DE CÓMPUTO & CONTROL</span>
+                        </div>
+                        <div class="window-content">
+                            <div class="admin-explanation retro-panel">
+                                <p><strong>¡ATENCIÓN MÁNAGER ADMINISTRADOR!</strong> Aquí puedes simular cómo finalizan los partidos de la Fase de Grupos y Eliminatorias del Mundial 2026.</p>
+                                <p class="text-yellow">Al guardar un resultado oficial, se calcularán las puntuaciones de todos los mánagers del ranking global y de los clanes al instante.</p>
+                            </div>
+
+                            <div class="admin-actions-bar margin-top">
+                                <button id="btn-admin-auto-simulate" class="retro-btn">Simular Grupos Oficiales Lógicamente</button>
+                                <button id="btn-admin-reset-results" class="retro-btn danger-btn">Reiniciar Resultados Oficiales del Torneo</button>
+                            </div>
+
+                            <div class="admin-matches-list margin-top">
+                                <h3>INGRESAR MARCADORES OFICIALES DEL MUNDIAL:</h3>
+                                <div id="admin-matches-grid" class="admin-grid-layout">
+                                    <!-- Generado por JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Sonidos pre-cargados / Notificaciones retro emergentes -->
+    <div id="retro-toast" class="retro-toast-hidden">
+        <div class="toast-content retro-panel">
+            <span id="toast-message">Predicción Guardada Exitosamente</span>
+        </div>
+    </div>
+
+    <!-- JS principal -->
+    <script src="app.js"></script>
+</body>
+</html>
