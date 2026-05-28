@@ -472,11 +472,12 @@ function loadDatabase() {
         localStorage.setItem('predictor_lulo_clans', JSON.stringify(state.clans));
     }
     
-    // 4. Token API
+    // 4. Token API (Mantener solo por compatibilidad de guardado si se requiere)
     const storedApiToken = localStorage.getItem('predictor_lulo_api_token');
     if (storedApiToken) {
         state.apiToken = storedApiToken;
-        document.getElementById('api-token-input').value = storedApiToken;
+        const apiInput = document.getElementById('api-token-input');
+        if (apiInput) apiInput.value = storedApiToken;
     }
     
     // 5. Sesión activa
@@ -968,43 +969,46 @@ function getKnockoutRoundMatches(r32Pairings) {
 // ================= MOTOR DE SINCRONIZACIÓN EN TIEMPO REAL (API) =================
 
 async function syncRealWorldMatches() {
-    if (!state.apiToken) {
-        showToast("Error: No has configurado tu Token API");
-        Sound.playError();
-        return;
-    }
-    
-    showToast("Sincronizando con Football-Data.org...");
+    showToast("Sincronizando con ESPN Scoreboard API...");
     Sound.playDisk();
     
     try {
-        // Hacemos el fetch oficial a la API de Football-Data v4
-        // WC = World Cup.
-        const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', {
-            headers: { 'X-Auth-Token': state.apiToken }
-        });
-        
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard');
         if (!response.ok) {
-            throw new Error(`Código HTTP de error: ${response.status}`);
+            throw new Error(`Error de servidor ESPN: ${response.status}`);
         }
         
         const data = await response.json();
-        const apiMatches = data.matches;
+        const events = data.events;
         
-        if (!apiMatches || apiMatches.length === 0) {
-            throw new Error("No se encontraron partidos devueltos por la API.");
+        if (!events || events.length === 0) {
+            showToast("No hay partidos en juego hoy en ESPN");
+            return;
         }
         
         let updatedCount = 0;
         
-        // Mapear partidos concluidos a nuestra base local
-        apiMatches.forEach(apiM => {
-            if (apiM.status !== 'FINISHED') return; // Solo importar concluidos
+        events.forEach(evt => {
+            const isCompleted = evt.status?.type?.completed;
+            if (!isCompleted) return; // Solo sincronizar partidos finalizados
             
-            const homeCode = apiM.homeTeam.tla;
-            const awayCode = apiM.awayTeam.tla;
+            const comp = evt.competitions?.[0];
+            if (!comp) return;
             
-            // Buscar partido correspondiente por selecciones y tipo
+            const homeCompetitor = comp.competitors?.find(c => c.homeAway === 'home');
+            const awayCompetitor = comp.competitors?.find(c => c.homeAway === 'away');
+            
+            if (!homeCompetitor || !awayCompetitor) return;
+            
+            const homeCode = homeCompetitor.team?.abbreviation?.toUpperCase();
+            const awayCode = awayCompetitor.team?.abbreviation?.toUpperCase();
+            
+            const homeScore = parseInt(homeCompetitor.score);
+            const awayScore = parseInt(awayCompetitor.score);
+            
+            if (isNaN(homeScore) || isNaN(awayScore)) return;
+            
+            // Buscar partido correspondiente por selecciones
             const localMatch = state.matches.find(m => 
                 !m.played && 
                 m.home === homeCode && 
@@ -1012,8 +1016,8 @@ async function syncRealWorldMatches() {
             );
             
             if (localMatch) {
-                localMatch.homeScore = apiM.score.fullTime.home;
-                localMatch.awayScore = apiM.score.fullTime.away;
+                localMatch.homeScore = homeScore;
+                localMatch.awayScore = awayScore;
                 localMatch.played = true;
                 updatedCount++;
             }
@@ -1023,15 +1027,15 @@ async function syncRealWorldMatches() {
         saveDatabase();
         
         // Recargar vista activa
-        document.querySelector('.tab-btn.active').click();
+        const activeTabBtn = document.querySelector('.tab-btn.active');
+        if (activeTabBtn) activeTabBtn.click();
         
         showToast(`Sincronizado: ${updatedCount} partidos actualizados`);
         Sound.playFanfare();
         
     } catch(err) {
-        console.error("Fallo de API: ", err);
-        // Mostrar alerta retro y usar simulación
-        showToast("Error de conexión CORS o Token inválido");
+        console.error("Fallo al sincronizar con ESPN API: ", err);
+        showToast("Error de conexión con ESPN Scoreboard API");
         Sound.playError();
     }
 }
@@ -1343,25 +1347,7 @@ function setupNavigation() {
         });
     });
     
-    // Modales de API Configuración
-    document.getElementById('btn-open-api-config').addEventListener('click', () => {
-        Sound.playClick();
-        document.getElementById('api-config-modal').classList.remove('hidden-panel');
-    });
-    
-    document.getElementById('btn-close-api-config').addEventListener('click', () => {
-        Sound.playClick();
-        document.getElementById('api-config-modal').classList.add('hidden-panel');
-    });
-    
-    document.getElementById('btn-save-api-token').addEventListener('click', () => {
-        const token = document.getElementById('api-token-input').value.trim();
-        state.apiToken = token;
-        saveDatabase();
-        showToast("Token API Guardado");
-        document.getElementById('api-config-modal').classList.add('hidden-panel');
-    });
-    
+    // Sincronizar partidos en vivo con la API de ESPN
     document.getElementById('btn-sync-api-now').addEventListener('click', () => {
         syncRealWorldMatches();
     });

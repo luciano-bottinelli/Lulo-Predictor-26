@@ -65,26 +65,6 @@
             </div>
         </header>
 
-        <!-- CAJA DE CONFIGURACIÓN DE API (Oculta por defecto, estilo Windows 95) -->
-        <div id="api-config-modal" class="retro-window max-w-md hidden-panel" style="position: fixed; top: 20%; left: 50%; transform: translateX(-50%); z-index: 10000; box-shadow: 10px 10px 0 var(--black);">
-            <div class="window-title-bar">
-                <span class="window-title-text"><span class="icon-wrench">🔧</span> CONFIGURAR CONEXIÓN REAL-TIME</span>
-                <button class="window-close-btn" id="btn-close-api-config" style="cursor: pointer;">X</button>
-            </div>
-            <div class="window-content">
-                <div class="admin-explanation retro-panel" style="margin-bottom: 12px; font-size: 11px;">
-                    <p>Ingresa tu API-Key de <strong>Football-Data.org</strong> para sincronizar los marcadores en vivo con el Mundial Real de la FIFA 2026.</p>
-                </div>
-                <div class="form-group">
-                    <label for="api-token-input">API TOKEN (Football-Data.org):</label>
-                    <input type="password" id="api-token-input" class="retro-input" placeholder="Ingresa tu token aquí...">
-                </div>
-                <div class="clan-actions-buttons margin-top">
-                    <button id="btn-save-api-token" class="retro-btn small-btn" style="width: 100%; margin-bottom: 8px;">GUARDAR TOKEN</button>
-                    <button id="btn-sync-api-now" class="retro-btn small-btn active-state" style="width: 100%;">⚡ SINCRONIZAR CON LA REALIDAD AHORA</button>
-                </div>
-            </div>
-        </div>
 
         <!-- ================= PANTALLA DE LOGIN / REGISTRO ================= -->
         <main id="login-screen" class="active-screen">
@@ -612,7 +592,7 @@
                             <div class="admin-actions-bar margin-top" style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <button id="btn-admin-auto-simulate" class="retro-btn">Simular Grupos Oficiales Lógicamente</button>
                                 <button id="btn-admin-reset-results" class="retro-btn danger-btn">Reiniciar Resultados Oficiales del Torneo</button>
-                                <button id="btn-open-api-config" class="retro-btn active-state" style="background-color: var(--win-gray); color: var(--black); font-weight: bold;">🔧 CONFIGURAR API DE DATOS REALES</button>
+                                <button id="btn-sync-api-now" class="retro-btn active-state" style="background-color: var(--yellow); color: var(--black); font-weight: bold;">⚡ SINCRONIZAR RESULTADOS REALES (ESPN API)</button>
                             </div>
 
                             <div class="admin-matches-list margin-top">
