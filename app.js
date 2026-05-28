@@ -410,8 +410,22 @@ function createCircularFlagHTML(countryCode) {
         </div>
     `;
 }
+// ================= NOTIFICACIONES Y TOASTS RETRO =================
 
-// ================= GESTIÓN DE LA BASE DE DATOS LOCAL Y MOTOR DE JUEGO =================
+let toastTimeout = null;
+function showToast(message) {
+    const toast = document.getElementById('retro-toast');
+    const toastMsg = document.getElementById('toast-message');
+    if (!toast || !toastMsg) return;
+    
+    toastMsg.innerText = message;
+    toast.className = 'retro-toast-visible';
+    
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.className = 'retro-toast-hidden';
+    }, 3000);
+}
 
 // ================= GESTIÓN DE LA BASE DE DATOS LOCAL Y MOTOR DE JUEGO =================
 
@@ -1423,11 +1437,13 @@ function setupNavigation() {
             document.getElementById('submit-auth-text').innerText = "CREAR CUENTA Y CONTINUAR";
             authToggleBtn.innerText = "¿Ya tienes cuenta? INICIA SESIÓN AQUÍ";
             document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> REGISTRO EN EL SISTEMA`;
+            document.getElementById('auth-input-label').innerText = "CORREO ELECTRÓNICO:";
         } else {
             state.authMode = "login";
             document.getElementById('submit-auth-text').innerText = "INICIAR SESIÓN";
             authToggleBtn.innerText = "¿No tienes cuenta? REGÍSTRATE AQUÍ";
             document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR`;
+            document.getElementById('auth-input-label').innerText = "NOMBRE DE USUARIO:";
         }
     });
 
@@ -1696,6 +1712,7 @@ function setupNavigation() {
         document.getElementById('submit-auth-text').innerText = "INICIAR SESIÓN";
         document.getElementById('btn-toggle-auth-mode').innerText = "¿No tienes cuenta? REGÍSTRATE AQUÍ";
         document.getElementById('login-window-title').innerHTML = `<span class="icon-disk">💾</span> INICIAR SISTEMA PREDICTOR`;
+        document.getElementById('auth-input-label').innerText = "NOMBRE DE USUARIO:";
     });
     
     // CLANES: Acciones de botones

@@ -11,7 +11,41 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Supabase Official client SDK for Cloud synchronization -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+    <!-- Diagnóstico de Errores Visuales en Vivo -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            const errDiv = document.createElement('div');
+            errDiv.style.position = 'fixed';
+            errDiv.style.top = '10%';
+            errDiv.style.left = '50%';
+            errDiv.style.transform = 'translateX(-50%)';
+            errDiv.style.zIndex = '999999';
+            errDiv.style.width = '90%';
+            errDiv.style.maxWidth = '500px';
+            errDiv.style.background = '#c0c0c0';
+            errDiv.style.border = '3px outset #fff';
+            errDiv.style.boxShadow = '10px 10px 0 #000';
+            errDiv.style.fontFamily = 'monospace';
+            errDiv.style.color = '#000';
+            errDiv.style.padding = '12px';
+            
+            errDiv.innerHTML = `
+                <div style="background: #000080; color: #fff; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; font-size:12px;">
+                    <span>⚠️ ERROR DE SISTEMA PREDICTOR</span>
+                    <span style="cursor:pointer;" onclick="this.parentElement.parentElement.remove()">[X]</span>
+                </div>
+                <div style="padding: 12px; font-size: 12px; line-height: 1.4; text-align: left;">
+                    <p style="color: #c00000; font-weight: bold; margin-bottom: 8px;">Se ha producido un error durante la ejecución del sistema:</p>
+                    <div style="background: #fff; border: 2px inset #fff; padding: 8px; font-size: 11px; white-space: pre-wrap; overflow-x: auto; max-height: 200px;">
+                        ${message}\\n\\nEn: ${source}\\nLínea: ${lineno}:${colno}
+                    </div>
+                    <p style="margin-top: 12px; font-size: 10px; color: #555;">Por favor, dime qué dice este error para solucionarlo inmediatamente.</p>
+                </div>
+            `;
+            document.body.appendChild(errDiv);
+            return false;
+        };
+    </script>
 </head>
 <body class="crt-active">
     <!-- Overlay CRT para efecto monitor de tubo -->
