@@ -866,14 +866,14 @@ function calculateAllPoints() {
             const predAway = pred.awayScore;
             
             if (realHome === predHome && realAway === predAway) {
-                totalPts += 18; // Exacto Playoff = +18 pts
+                totalPts += 30; // Exacto Playoff = +30 pts
                 exacts++;
             } else if (
                 (realHome > realAway && predHome > predAway) ||
                 (realHome < realAway && predHome < predAway) ||
                 (realHome === realAway && predHome === predAway)
             ) {
-                totalPts += 8; // Resultado Playoff = +8 pts
+                totalPts += 10; // Resultado Playoff = +10 pts
                 outcomes++;
             }
         });
@@ -881,7 +881,7 @@ function calculateAllPoints() {
         // 3. Puntos por Bonificaciones Especiales
         // En una sincronización real de final de torneo, esto se validaría contra el campeón oficial
         // Por ahora, simularemos la adjudicación si las predicciones del usuario coinciden con el Campeón simulado en Admin
-        const finalMatch = state.matches.find(m => m.id === 'FINAL');
+        const finalMatch = state.matches.find(m => m.id === 'M104');
         if (finalMatch && finalMatch.played) {
             const realChampion = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
             const realRunnerUp = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.away : finalMatch.home;
@@ -897,20 +897,26 @@ function calculateAllPoints() {
                         totalPts += 20;
                     }
                 }
-                // Bono Campeón (+35 pts)
+                // Bono Campeón (+80 pts)
                 if (spec.champion && spec.champion === realChampion) {
-                    totalPts += 35;
+                    totalPts += 80;
                 }
-                // Bono Goleador (+30 pts)
+                // Bono Goleador (+40 pts)
                 if (spec.scorer && spec.scorer === "K. Mbappé") { // Mbappé simulado
-                    totalPts += 30;
+                    totalPts += 40;
                 }
-                // Bono Asistidor (+30 pts)
+                // Bono Asistidor (+40 pts)
                 if (spec.assister && spec.assister === "L. Messi") { // Messi simulado
-                    totalPts += 30;
+                    totalPts += 40;
+                }
+                // Bono MVP (+40 pts)
+                if (spec.mvp && spec.mvp === "L. Messi") {
+                    totalPts += 40;
                 }
             }
         }
+        
+        // TODO: +20 puntos por cada grupo predicho en orden exacto (se calculará con las tablas reales al finalizar fase de grupos)
         
         user.points = totalPts;
         user.exactMatches = exacts;
@@ -1457,11 +1463,7 @@ function renderBracketRound() {
 
 // Rellenar los dropdowns del formulario de campeonato
 function populateSpecialPredictionsForm() {
-    const spec = state.currentUser.specialPredictions || { scorer: "", assister: "" };
-    
-    // Cargar goleador y asistidor
-    document.getElementById('predict-scorer').value = spec.scorer || "";
-    document.getElementById('predict-assister').value = spec.assister || "";
+    // El formulario de premios se movió a la final, esta pestaña ahora es solo informativa para los puntos
 }
 
 function refreshActiveTab() {

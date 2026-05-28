@@ -283,7 +283,7 @@
                             <button class="sub-tab-btn" data-round="r8">CUARTOS (8)</button>
                             <button class="sub-tab-btn" data-round="r4">SEMIS (4)</button>
                             <button class="sub-tab-btn" data-round="r2">FINAL 🏆</button>
-                            <button class="sub-tab-btn" data-round="premios">PREMIOS EXTRA 🎁</button>
+                            <button class="sub-tab-btn" data-round="premios">PUNTOS 💯</button>
                         </div>
 
                         <!-- Grilla de partidos de la ronda seleccionada -->
@@ -294,52 +294,17 @@
                         <!-- SECCIÓN ESPECIAL: PREMIOS DE CAMPEONATO -->
                         <div id="championship-rewards-panel" class="retro-window margin-top hidden-panel">
                             <div class="window-title-bar">
-                                <span class="window-title-text"><span class="icon-trophy">🏆</span> PREDICCIONES ESPECIALES DE CAMPEONATO</span>
+                                <span class="window-title-text"><span class="icon-trophy">💯</span> SISTEMA DE PUNTOS OFICIAL</span>
                             </div>
                             <div class="window-content">
-                                <div class="admin-explanation retro-panel" style="margin-bottom: 16px; font-size: 12px;">
-                                    <p>¡Registra tus apuestas finales de premios individuales para el Mundial 2026! Recibirás puntos extra al finalizar la copa.</p>
-                                    <ul style="margin-left: 18px; margin-top: 6px; font-size: 11px;">
-                                        <li>👟 <strong class="text-green">Acertar Máximo Goleador (Bota de Oro):</strong> <span class="text-green">+30 PUNTOS</span></li>
-                                        <li>🎯 <strong class="text-green">Acertar Máximo Asistidor:</strong> <span class="text-green">+30 PUNTOS</span></li>
+                                <div class="retro-rules-panel retro-panel">
+                                    <ul style="font-size:12px; line-height: 1.8;">
+                                        <li>🎯 <strong class="text-yellow">Fase de Grupos:</strong> Acierto Exacto = <span class="text-cyan">+15 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+5 PUNTOS</span>.</li>
+                                        <li>⚔️ <strong class="text-yellow">Fase Eliminatoria:</strong> Acierto Exacto = <span class="text-cyan">+30 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+10 PUNTOS</span>.</li>
+                                        <li>🏅 <strong class="text-yellow">Bonos Campeonato:</strong> Finalistas (ambos) = <span class="text-cyan">+20 PTS</span> | Campeón = <span class="text-yellow">+80 PTS</span> | MVP, Goleador o Asistidor = <span class="text-green">+40 PTS c/u</span>.</li>
+                                        <li>⭐ <strong class="text-yellow">Pleno de Grupo:</strong> Predecir los 4 equipos de un grupo en orden exacto = <span class="text-cyan">+20 PTS</span>.</li>
                                     </ul>
                                 </div>
-
-                                <form id="special-predictions-form" class="retro-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-                                    <div class="form-group">
-                                        <label for="predict-scorer">👟 MÁXIMO GOLEADOR (BOTA DE ORO):</label>
-                                        <select id="predict-scorer" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
-                                            <option value="">-- Seleccionar Goleador --</option>
-                                            <option value="K. Mbappé">Kylian Mbappé (Francia)</option>
-                                            <option value="L. Messi">Lionel Messi (Argentina)</option>
-                                            <option value="E. Haaland">Erling Haaland (Noruega)</option>
-                                            <option value="Vinicius Jr.">Vinicius Jr. (Brasil)</option>
-                                            <option value="H. Kane">Harry Kane (Inglaterra)</option>
-                                            <option value="S. Rondón">Salomón Rondón (Venezuela)</option>
-                                            <option value="J. Bellingham">Jude Bellingham (Inglaterra)</option>
-                                            <option value="J. Alvarez">Julián Álvarez (Argentina)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="predict-assister">🎯 MÁXIMO ASISTIDOR DE LA COPA:</label>
-                                        <select id="predict-assister" class="retro-select" style="width: 100%; font-size: 11px; font-family: var(--font-body); font-weight:600;">
-                                            <option value="">-- Seleccionar Asistidor --</option>
-                                            <option value="L. Messi">Lionel Messi (Argentina)</option>
-                                            <option value="K. De Bruyne">Kevin De Bruyne (Bélgica)</option>
-                                            <option value="Vinicius Jr.">Vinicius Jr. (Brasil)</option>
-                                            <option value="J. Musiala">Jamal Musiala (Alemania)</option>
-                                            <option value="A. Griezmann">Antoine Griezmann (Francia)</option>
-                                            <option value="Y. Soteldo">Yeferson Soteldo (Venezuela)</option>
-                                            <option value="B. Silva">Bernardo Silva (Portugal)</option>
-                                            <option value="B. Fernandes">Bruno Fernandes (Portugal)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-actions" style="grid-column: 1/-1;">
-                                        <button type="submit" id="btn-save-special-preds" class="retro-btn big-btn" style="padding: 10px 16px;">
-                                            <span>💾 GUARDAR APUESTAS DE CAMPEONATO</span>
-                                        </button>
-                                    </div>
-                                </form>
                             </div>
                         </div>
                     </div>
@@ -541,13 +506,6 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="retro-rules-panel retro-panel margin-top">
-                                        <h4>REGLAMENTO OFICIAL DE PUNTOS:</h4>
-                                        <ul style="font-size:12px;">
-                                            <li>🎯 <strong class="text-yellow">Fase de Grupos:</strong> Acierto Exacto = <span class="text-cyan">+15 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+5 PUNTOS</span>.</li>
-                                            <li>⚔️ <strong class="text-yellow">Fase Eliminatoria:</strong> Acierto Exacto = <span class="text-cyan">+18 PUNTOS</span> | Acierto Ganador/Empate = <span class="text-green">+8 PUNTOS</span>.</li>
-                                            <li>🏅 <strong class="text-yellow">Bonos Campeonato:</strong> Finalistas acertados = <span class="text-cyan">+20 PTS</span> | Campeón acertado = <span class="text-yellow">+35 PTS</span> | Goleador/Asistidor = <span class="text-green">+30 PTS c/u</span>.</li>
-                                        </ul>
                                     </div>
                                 </div>
                             </div>
